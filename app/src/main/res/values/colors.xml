@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="washapp_primary">#0077B6</color>
+    <color name="washapp_primary_dark">#023E8A</color>
+    <color name="washapp_accent">#48CAE4</color>
+    <color name="washapp_background">#FFFFFF</color>
+</resources>

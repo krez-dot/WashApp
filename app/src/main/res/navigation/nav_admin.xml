@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_admin"
+    app:startDestination="@id/orderManagementFragment">
+
+    <fragment
+        android:id="@+id/orderManagementFragment"
+        android:name="com.washapp.admin.OrderManagementFragment"
+        android:label="@string/title_order_management"
+        tools:layout="@layout/fragment_order_management" />
+
+    <fragment
+        android:id="@+id/queueManagementFragment"
+        android:name="com.washapp.admin.QueueManagementFragment"
+        android:label="@string/title_queue_management"
+        tools:layout="@layout/fragment_queue_management" />
+
+    <fragment
+        android:id="@+id/machineSchedulingFragment"
+        android:name="com.washapp.admin.MachineSchedulingFragment"
+        android:label="@string/title_machine_scheduling"
+        tools:layout="@layout/fragment_machine_scheduling" />
+
+    <fragment
+        android:id="@+id/serviceConfigFragment"
+        android:name="com.washapp.admin.ServiceConfigFragment"
+        android:label="@string/title_service_config"
+        tools:layout="@layout/fragment_service_config" />
+
+</navigation>

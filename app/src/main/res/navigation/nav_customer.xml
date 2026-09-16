@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_customer"
+    app:startDestination="@id/orderSubmissionFragment">
+
+    <fragment
+        android:id="@+id/orderSubmissionFragment"
+        android:name="com.washapp.customer.OrderSubmissionFragment"
+        android:label="@string/title_submit_order"
+        tools:layout="@layout/fragment_order_submission" />
+
+    <fragment
+        android:id="@+id/orderTrackingFragment"
+        android:name="com.washapp.customer.OrderTrackingFragment"
+        android:label="@string/title_track_order"
+        tools:layout="@layout/fragment_order_tracking" />
+
+</navigation>

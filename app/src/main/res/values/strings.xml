@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WashApp</string>
+
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_name">Full name</string>
+
+    <string name="action_login">Log in</string>
+    <string name="action_register">Register</string>
+    <string name="action_go_to_register">Don\'t have an account? Register</string>
+
+    <string name="title_submit_order">Submit Order</string>
+    <string name="hint_load_size">Load size (kg)</string>
+    <string name="hint_colored">Colored garments</string>
+    <string name="action_submit_order">Submit Order</string>
+
+    <string name="title_track_order">Track Order</string>
+    <string name="placeholder_no_orders">No orders yet.</string>
+
+    <string name="title_order_management">Orders</string>
+    <string name="title_queue_management">Queue</string>
+    <string name="placeholder_queue_management">Queue management — TODO</string>
+    <string name="title_machine_scheduling">Machines</string>
+    <string name="placeholder_machine_scheduling">Machine scheduling — TODO</string>
+    <string name="title_service_config">Services</string>
+    <string name="placeholder_service_config">Service configuration — TODO</string>
+</resources>
