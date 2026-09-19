@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.washapp.databinding.ActivityAdminBinding
+import com.washapp.util.applyPoppinsRecursively
 
 class AdminActivity : AppCompatActivity() {
 
@@ -18,5 +19,6 @@ class AdminActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager
             .findFragmentById(binding.adminNavHost.id) as NavHostFragment
         binding.adminBottomNav.setupWithNavController(navHostFragment.navController)
+        applyPoppinsRecursively(binding.adminBottomNav)
     }
 }
