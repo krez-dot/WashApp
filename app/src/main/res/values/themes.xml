@@ -9,6 +9,8 @@
         <item name="colorOnSurface">@color/washapp_on_surface</item>
         <item name="colorError">@color/washapp_error</item>
         <item name="android:windowBackground">@color/washapp_background</item>
+        <item name="android:fontFamily">@font/poppins_regular</item>
+        <item name="fontFamily">@font/poppins_regular</item>
         <item name="materialButtonStyle">@style/Widget.WashApp.Button</item>
         <item name="textInputStyle">@style/Widget.WashApp.TextInputLayout</item>
     </style>
@@ -48,6 +50,7 @@
 
     <style name="TextAppearance.WashApp.Body" parent="TextAppearance.MaterialComponents.Body2">
         <item name="android:textColor">@color/washapp_on_surface_variant</item>
+        <item name="android:fontFamily">@font/poppins_regular</item>
     </style>
 
     <style name="TextAppearance.WashApp.NavLabel" parent="TextAppearance.MaterialComponents.Caption">
