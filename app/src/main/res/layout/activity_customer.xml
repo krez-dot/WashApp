@@ -20,6 +20,8 @@
         android:layout_height="wrap_content"
         android:background="@color/washapp_surface"
         app:elevation="8dp"
+        app:itemTextAppearanceActive="@style/TextAppearance.WashApp.NavLabel"
+        app:itemTextAppearanceInactive="@style/TextAppearance.WashApp.NavLabel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/menu_customer" />
 
