@@ -13,10 +13,16 @@ class OrderManagementAdapter(
 ) : RecyclerView.Adapter<OrderManagementAdapter.OrderViewHolder>() {
 
     private val orders = mutableListOf<Order>()
+    private var machineLabels: Map<String, String> = emptyMap()
 
     fun submitList(newOrders: List<Order>) {
         orders.clear()
         orders.addAll(newOrders)
+        notifyDataSetChanged()
+    }
+
+    fun setMachineLabels(labels: Map<String, String>) {
+        machineLabels = labels
         notifyDataSetChanged()
     }
 
@@ -49,9 +55,15 @@ class OrderManagementAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(order: Order) {
+            val machineSuffix = if (order.assignedMachineId.isNotEmpty()) {
+                val label = machineLabels[order.assignedMachineId] ?: order.assignedMachineId.take(6)
+                " · $label"
+            } else {
+                ""
+            }
             binding.orderSummary.text =
                 "#${order.queuePosition} · ${order.orderId.take(6)} · ${order.serviceType} · " +
-                    "${order.loadSizeKg}kg · ${order.stage}"
+                    "${order.loadSizeKg}kg · ${order.stage}$machineSuffix"
 
             val next = order.stage.next()
             if (next == null) {

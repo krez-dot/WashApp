@@ -41,8 +41,15 @@ class OrderRepository(
         return snapshot.toObjects(Order::class.java).sortedBy { it.queuePosition }
     }
 
-    suspend fun updateStage(orderId: String, stage: String, queuePosition: Int) {
-        orders.document(orderId).update("stage", stage).await()
+    suspend fun updateStage(
+        orderId: String, stage: String, queuePosition: Int,
+        assignedMachineId: String? = null
+    ) {
+        val updates = mutableMapOf<String, Any>("stage" to stage)
+        if (assignedMachineId != null) {
+            updates["assignedMachineId"] = assignedMachineId
+        }
+        orders.document(orderId).update(updates).await()
         pushStatus(orderId, stage, queuePosition)
     }
 

@@ -70,9 +70,23 @@ listener on `orderStatus/{orderId}` — writes to that path from anywhere
 (the admin app, another client, the Firebase console) reflect instantly
 without a manual refresh.
 
+Advancing an order to "Washing" auto-assigns it the first available machine
+(`MachineScheduler.findAvailableMachine`), marks that machine unavailable, and
+releases it back to the pool when the order is marked "Complete" — this is
+the "Machines (schedule per machine) – per-machine scheduling and load
+assignment" feature from the Laundry Shop Module spec.
+
+Note: `Machine.isAvailable` is annotated with `@get:PropertyName("isAvailable")`
+— without it, Firestore's Kotlin mapper silently strips the `is` prefix and
+serializes the field as `available`, which doesn't match the literal
+`"isAvailable"` key our raw map-based partial updates use, so writes and
+reads silently diverge onto two different fields. If you add other boolean
+properties named `isXxx` to any model, apply the same annotation.
+
 Not yet built:
 - Actual push notification sending (the FCM service in `notifications/` is
-  still a stub — no Cloud Function triggers a send on stage transitions)
+  still a stub — no Cloud Function triggers a send on stage transitions;
+  skipped for now since it needs the Blaze plan)
 - Admin-side live listeners (admin screens still use one-shot fetches plus
   optimistic local updates on the admin's own actions; they won't see another
   admin's changes without navigating away and back)

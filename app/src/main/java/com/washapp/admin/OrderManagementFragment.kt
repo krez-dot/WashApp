@@ -10,7 +10,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.washapp.data.model.Order
 import com.washapp.data.model.ServiceStage
+import com.washapp.data.repository.MachineRepository
 import com.washapp.data.repository.OrderRepository
+import com.washapp.data.scheduling.MachineScheduler
 import com.washapp.databinding.FragmentOrderManagementBinding
 import kotlinx.coroutines.launch
 
@@ -20,7 +22,9 @@ class OrderManagementFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val orderRepository = OrderRepository()
+    private val machineRepository = MachineRepository()
     private lateinit var adapter: OrderManagementAdapter
+    private val machineLabels = mutableMapOf<String, String>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,6 +43,7 @@ class OrderManagementFragment : Fragment() {
         binding.orderList.adapter = adapter
 
         loadOrders()
+        loadMachineLabels()
     }
 
     private fun advanceStage(order: Order) {
@@ -46,19 +51,42 @@ class OrderManagementFragment : Fragment() {
 
         lifecycleScope.launch {
             try {
-                orderRepository.updateStage(order.orderId, next.name, order.queuePosition)
-                // Update the list from the known write result rather than re-querying:
-                // Firestore's write acknowledgment can arrive slightly before the local
-                // query cache catches up, so an immediate re-fetch can read stale data.
-                if (next == ServiceStage.COMPLETED) {
-                    adapter.removeItem(order.orderId)
-                } else {
-                    adapter.updateItem(order.copy(stage = next))
+                when (next) {
+                    ServiceStage.WASHING -> startWashing(order, next)
+                    ServiceStage.COMPLETED -> completeOrder(order, next)
+                    else -> {
+                        orderRepository.updateStage(order.orderId, next.name, order.queuePosition)
+                        adapter.updateItem(order.copy(stage = next))
+                    }
                 }
             } catch (e: Exception) {
                 Snackbar.make(binding.root, e.message ?: "Couldn't update the order", Snackbar.LENGTH_LONG).show()
             }
         }
+    }
+
+    private suspend fun startWashing(order: Order, next: ServiceStage) {
+        val machine = MachineScheduler.findAvailableMachine(machineRepository.getAvailableMachines())
+        if (machine == null) {
+            Snackbar.make(binding.root, "No machines available", Snackbar.LENGTH_LONG).show()
+            return
+        }
+        machineRepository.assignMachine(machine.machineId, order.orderId)
+        orderRepository.updateStage(order.orderId, next.name, order.queuePosition, machine.machineId)
+        // Update the list from the known write result rather than re-querying:
+        // Firestore's write acknowledgment can arrive slightly before the local
+        // query cache catches up, so an immediate re-fetch can read stale data.
+        machineLabels[machine.machineId] = machine.label
+        adapter.setMachineLabels(machineLabels)
+        adapter.updateItem(order.copy(stage = next, assignedMachineId = machine.machineId))
+    }
+
+    private suspend fun completeOrder(order: Order, next: ServiceStage) {
+        if (order.assignedMachineId.isNotEmpty()) {
+            machineRepository.releaseMachine(order.assignedMachineId)
+        }
+        orderRepository.updateStage(order.orderId, next.name, order.queuePosition)
+        adapter.removeItem(order.orderId)
     }
 
     private fun loadOrders() {
@@ -67,6 +95,19 @@ class OrderManagementFragment : Fragment() {
                 adapter.submitList(orderRepository.getOrdersInProgress())
             } catch (e: Exception) {
                 Snackbar.make(binding.root, e.message ?: "Couldn't load orders", Snackbar.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun loadMachineLabels() {
+        lifecycleScope.launch {
+            try {
+                val machines = machineRepository.getAllMachines()
+                machineLabels.clear()
+                machines.forEach { machineLabels[it.machineId] = it.label }
+                adapter.setMachineLabels(machineLabels)
+            } catch (e: Exception) {
+                // Non-critical: falls back to showing a truncated machine ID.
             }
         }
     }
