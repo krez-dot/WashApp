@@ -46,10 +46,18 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/queuePositionLabel"
+            android:id="@+id/orderDetailsLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:textAppearance="@style/TextAppearance.WashApp.Body"
+            tools:text="Non-Colored · 2.5 kg" />
+
+        <TextView
+            android:id="@+id/queuePositionLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
             android:textAppearance="@style/TextAppearance.WashApp.Body"
             tools:text="Queue position: 1" />
 

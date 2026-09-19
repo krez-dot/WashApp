@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.washapp.data.model.Order
 import com.washapp.data.model.ServiceStage
+import com.washapp.data.model.ServiceType
 import com.washapp.databinding.ItemOrderTrackingBinding
 
 class OrderTrackingAdapter : RecyclerView.Adapter<OrderTrackingAdapter.OrderViewHolder>() {
@@ -45,6 +46,8 @@ class OrderTrackingAdapter : RecyclerView.Adapter<OrderTrackingAdapter.OrderView
             val context = binding.root.context
             binding.orderIdLabel.text = "Order ${order.orderId.take(6)}"
             binding.stageChip.text = order.stage.name
+            val serviceLabel = if (order.serviceType == ServiceType.COLORED) "Colored" else "Non-Colored"
+            binding.orderDetailsLabel.text = "$serviceLabel · ${order.loadSizeKg} kg"
             binding.queuePositionLabel.text = "Queue position: ${order.queuePosition}"
             binding.estimatedCompletionLabel.text =
                 "Estimated completion: ${order.estimatedCompletionMinutes} min"
