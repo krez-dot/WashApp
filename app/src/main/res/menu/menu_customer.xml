@@ -2,8 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/orderSubmissionFragment"
+        android:icon="@drawable/ic_submit_order"
         android:title="@string/title_submit_order" />
     <item
         android:id="@+id/orderTrackingFragment"
+        android:icon="@drawable/ic_track_order"
         android:title="@string/title_track_order" />
 </menu>

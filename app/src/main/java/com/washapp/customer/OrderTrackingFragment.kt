@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.ValueEventListener
 import com.washapp.data.model.Order
@@ -22,6 +23,7 @@ class OrderTrackingFragment : Fragment() {
 
     private val authRepository = AuthRepository()
     private val orderRepository = OrderRepository()
+    private lateinit var adapter: OrderTrackingAdapter
 
     // Firestore holds the static order fields (cost, load size, ...); Realtime Database
     // pushes live stage/queuePosition updates on top of this map without a manual refresh.
@@ -39,6 +41,11 @@ class OrderTrackingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        adapter = OrderTrackingAdapter()
+        binding.ordersList.layoutManager = LinearLayoutManager(requireContext())
+        binding.ordersList.adapter = adapter
+
         loadOrders()
     }
 
@@ -71,20 +78,16 @@ class OrderTrackingFragment : Fragment() {
             return
         }
         val current = liveOrders[orderId] ?: return
-        liveOrders[orderId] = current.copy(stage = stageEnum, queuePosition = queuePosition)
-        renderOrders()
+        val updated = current.copy(stage = stageEnum, queuePosition = queuePosition)
+        liveOrders[orderId] = updated
+        adapter.updateItem(updated)
     }
 
     private fun renderOrders() {
-        val binding = _binding ?: return
-        binding.ordersSummary.text = liveOrders.values
-            .sortedBy { it.orderId }
-            .joinToString(separator = "\n\n") { order ->
-                "Order ${order.orderId.take(6)} — ${order.stage}\n" +
-                    "Queue position: ${order.queuePosition}\n" +
-                    "Estimated completion: ${order.estimatedCompletionMinutes} min\n" +
-                    "Cost: ₱${order.cost}"
-            }
+        if (_binding == null) return
+        val orders = liveOrders.values.toList()
+        adapter.submitList(orders)
+        binding.emptyState.visibility = if (orders.isEmpty()) View.VISIBLE else View.GONE
     }
 
     override fun onDestroyView() {

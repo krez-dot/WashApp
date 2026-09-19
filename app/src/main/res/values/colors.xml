@@ -2,6 +2,21 @@
 <resources>
     <color name="washapp_primary">#0077B6</color>
     <color name="washapp_primary_dark">#023E8A</color>
-    <color name="washapp_accent">#48CAE4</color>
-    <color name="washapp_background">#FFFFFF</color>
+    <color name="washapp_primary_light">#48CAE4</color>
+    <color name="washapp_accent">#00B4D8</color>
+
+    <color name="washapp_background">#F3F8FB</color>
+    <color name="washapp_surface">#FFFFFF</color>
+
+    <color name="washapp_on_primary">#FFFFFF</color>
+    <color name="washapp_on_surface">#16232B</color>
+    <color name="washapp_on_surface_variant">#5C6B73</color>
+    <color name="washapp_outline">#C7D4DA</color>
+
+    <color name="washapp_error">#BA1A1A</color>
+    <color name="washapp_success">#2E7D32</color>
+    <color name="washapp_stage_queued">#78909C</color>
+    <color name="washapp_stage_washing">#0077B6</color>
+    <color name="washapp_stage_drying">#F9A825</color>
+    <color name="washapp_stage_completed">#2E7D32</color>
 </resources>

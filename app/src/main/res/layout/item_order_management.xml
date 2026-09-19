@@ -1,25 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:padding="16dp">
+    android:layout_marginBottom="10dp"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="1dp"
+    app:strokeWidth="0dp">
 
-    <TextView
-        android:id="@+id/orderSummary"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:textSize="16sp"
-        tools:text="#1 · a1b2c3 · COLORED · 2.0kg · QUEUED" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp">
 
-    <Button
-        android:id="@+id/advanceStageButton"
-        style="?android:attr/buttonBarButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="Start Washing" />
+        <TextView
+            android:id="@+id/orderSummary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAppearance="@style/TextAppearance.WashApp.Title"
+            tools:text="#1 · a1b2c3 · COLORED · 2.0kg · QUEUED" />
 
-</LinearLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/advanceStageButton"
+            style="@style/Widget.WashApp.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Start Washing" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

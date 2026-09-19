@@ -68,7 +68,7 @@ class OrderSubmissionFragment : Fragment() {
                 )
                 order = TimeEstimator.estimate(order, pricing, queuePosition, averageStageMinutes = 15)
                 orderRepository.submitOrder(order)
-                binding.loadSizeInput.text.clear()
+                binding.loadSizeInput.text?.clear()
                 binding.coloredCheckbox.isChecked = false
                 Snackbar.make(binding.root, "Order submitted", Snackbar.LENGTH_SHORT).show()
             } catch (e: Exception) {

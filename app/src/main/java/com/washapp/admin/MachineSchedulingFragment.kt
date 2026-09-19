@@ -52,7 +52,7 @@ class MachineSchedulingFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val machineId = machineRepository.addMachine(label)
-                binding.newMachineLabelInput.text.clear()
+                binding.newMachineLabelInput.text?.clear()
                 adapter.appendItem(Machine(machineId = machineId, label = label, isAvailable = true))
             } catch (e: Exception) {
                 Snackbar.make(binding.root, e.message ?: "Couldn't add the machine", Snackbar.LENGTH_LONG).show()

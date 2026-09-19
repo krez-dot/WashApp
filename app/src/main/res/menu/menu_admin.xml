@@ -2,14 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/orderManagementFragment"
+        android:icon="@drawable/ic_orders"
         android:title="@string/title_order_management" />
     <item
         android:id="@+id/queueManagementFragment"
+        android:icon="@drawable/ic_queue"
         android:title="@string/title_queue_management" />
     <item
         android:id="@+id/machineSchedulingFragment"
+        android:icon="@drawable/ic_machines"
         android:title="@string/title_machine_scheduling" />
     <item
         android:id="@+id/serviceConfigFragment"
+        android:icon="@drawable/ic_services"
         android:title="@string/title_service_config" />
 </menu>
