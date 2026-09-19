@@ -20,9 +20,20 @@
 
     <string name="title_order_management">Orders</string>
     <string name="title_queue_management">Queue</string>
-    <string name="placeholder_queue_management">Queue management — TODO</string>
     <string name="title_machine_scheduling">Machines</string>
-    <string name="placeholder_machine_scheduling">Machine scheduling — TODO</string>
     <string name="title_service_config">Services</string>
-    <string name="placeholder_service_config">Service configuration — TODO</string>
+
+    <string name="action_move_up">Up</string>
+    <string name="action_move_down">Down</string>
+
+    <string name="hint_machine_label">New machine label</string>
+    <string name="action_add_machine">Add</string>
+    <string name="action_toggle_availability">Toggle</string>
+
+    <string name="title_service_non_colored">Non-Colored</string>
+    <string name="title_service_colored">Colored</string>
+    <string name="hint_price_per_kg">Price per kg (₱)</string>
+    <string name="hint_wash_minutes_per_kg">Wash minutes per kg</string>
+    <string name="hint_dry_minutes_per_kg">Dry minutes per kg</string>
+    <string name="action_save">Save</string>
 </resources>

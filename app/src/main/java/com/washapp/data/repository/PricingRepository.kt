@@ -15,4 +15,8 @@ class PricingRepository(
         return snapshot.toObject(PricingConfig::class.java)
             ?: PricingConfig(serviceType = serviceType)
     }
+
+    suspend fun savePricing(config: PricingConfig) {
+        pricing.document(config.serviceType.name).set(config).await()
+    }
 }

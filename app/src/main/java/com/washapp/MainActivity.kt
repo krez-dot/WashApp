@@ -12,9 +12,6 @@ import com.washapp.data.model.Role
 import com.washapp.data.repository.AuthRepository
 import kotlinx.coroutines.launch
 
-// TEMP: set to false once Firestore rules are published and login/register are verified.
-private const val BYPASS_AUTH_FOR_PREVIEW = false
-
 class MainActivity : AppCompatActivity() {
 
     private val authRepository = AuthRepository()
@@ -22,14 +19,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        // TEMP: skips sign-in so the UI can be previewed before Firestore rules are
-        // published. Remove this block once login/register work end-to-end.
-        if (BYPASS_AUTH_FOR_PREVIEW) {
-            startActivity(Intent(this, CustomerActivity::class.java))
-            finish()
-            return
-        }
 
         if (FirebaseAuth.getInstance().currentUser == null) {
             startActivity(Intent(this, LoginActivity::class.java))
