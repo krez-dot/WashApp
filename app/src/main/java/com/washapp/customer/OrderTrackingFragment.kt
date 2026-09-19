@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.washapp.data.repository.AuthRepository
 import com.washapp.data.repository.OrderRepository
 import com.washapp.databinding.FragmentOrderTrackingBinding
@@ -47,7 +48,7 @@ class OrderTrackingFragment : Fragment() {
                         "Cost: ₱${order.cost}"
                 }
             } catch (e: Exception) {
-                // TODO: surface the fetch failure to the user (e.g. Snackbar)
+                Snackbar.make(binding.root, e.message ?: "Couldn't load your orders", Snackbar.LENGTH_LONG).show()
             }
         }
     }

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.washapp.customer.CustomerActivity
 import com.washapp.data.model.Role
 import com.washapp.data.repository.AuthRepository
@@ -34,7 +35,7 @@ class RegisterActivity : AppCompatActivity() {
                 startActivity(Intent(this@RegisterActivity, CustomerActivity::class.java))
                 finish()
             } catch (e: Exception) {
-                // TODO: surface registration failure to the user (e.g. Snackbar)
+                Snackbar.make(binding.root, e.message ?: "Registration failed", Snackbar.LENGTH_LONG).show()
             }
         }
     }

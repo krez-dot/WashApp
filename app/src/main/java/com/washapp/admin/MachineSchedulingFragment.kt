@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.washapp.data.model.Machine
 import com.washapp.data.repository.MachineRepository
 import com.washapp.databinding.FragmentMachineSchedulingBinding
@@ -43,7 +44,10 @@ class MachineSchedulingFragment : Fragment() {
 
     private fun addMachine() {
         val label = binding.newMachineLabelInput.text.toString().trim()
-        if (label.isEmpty()) return
+        if (label.isEmpty()) {
+            Snackbar.make(binding.root, "Enter a machine label", Snackbar.LENGTH_SHORT).show()
+            return
+        }
 
         lifecycleScope.launch {
             try {
@@ -51,7 +55,7 @@ class MachineSchedulingFragment : Fragment() {
                 binding.newMachineLabelInput.text.clear()
                 adapter.appendItem(Machine(machineId = machineId, label = label, isAvailable = true))
             } catch (e: Exception) {
-                // TODO: surface the add-machine failure to the user (e.g. Snackbar)
+                Snackbar.make(binding.root, e.message ?: "Couldn't add the machine", Snackbar.LENGTH_LONG).show()
             }
         }
     }
@@ -66,7 +70,7 @@ class MachineSchedulingFragment : Fragment() {
                 // query cache catches up, so an immediate re-fetch can read stale data.
                 adapter.updateItem(updated)
             } catch (e: Exception) {
-                // TODO: surface the toggle failure to the user (e.g. Snackbar)
+                Snackbar.make(binding.root, e.message ?: "Couldn't update the machine", Snackbar.LENGTH_LONG).show()
             }
         }
     }
@@ -76,7 +80,7 @@ class MachineSchedulingFragment : Fragment() {
             try {
                 adapter.submitList(machineRepository.getAllMachines())
             } catch (e: Exception) {
-                // TODO: surface the fetch failure to the user (e.g. Snackbar)
+                Snackbar.make(binding.root, e.message ?: "Couldn't load machines", Snackbar.LENGTH_LONG).show()
             }
         }
     }

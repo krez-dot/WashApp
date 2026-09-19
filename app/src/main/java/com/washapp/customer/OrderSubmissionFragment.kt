@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.washapp.data.model.Order
 import com.washapp.data.model.ServiceType
 import com.washapp.data.repository.AuthRepository
@@ -41,7 +42,11 @@ class OrderSubmissionFragment : Fragment() {
 
     private fun submitOrder() {
         val customerId = authRepository.currentUserId() ?: return
-        val loadSize = binding.loadSizeInput.text.toString().toDoubleOrNull() ?: return
+        val loadSize = binding.loadSizeInput.text.toString().toDoubleOrNull()
+        if (loadSize == null) {
+            Snackbar.make(binding.root, "Enter a valid load size", Snackbar.LENGTH_SHORT).show()
+            return
+        }
         val serviceType = if (binding.coloredCheckbox.isChecked) {
             ServiceType.COLORED
         } else {
@@ -63,8 +68,11 @@ class OrderSubmissionFragment : Fragment() {
                 )
                 order = TimeEstimator.estimate(order, pricing, queuePosition, averageStageMinutes = 15)
                 orderRepository.submitOrder(order)
+                binding.loadSizeInput.text.clear()
+                binding.coloredCheckbox.isChecked = false
+                Snackbar.make(binding.root, "Order submitted", Snackbar.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                // TODO: surface the submission failure to the user (e.g. Snackbar)
+                Snackbar.make(binding.root, e.message ?: "Order submission failed", Snackbar.LENGTH_LONG).show()
             }
         }
     }

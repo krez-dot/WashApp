@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.washapp.data.model.Order
 import com.washapp.data.repository.OrderRepository
 import com.washapp.databinding.FragmentQueueManagementBinding
@@ -57,7 +58,7 @@ class QueueManagementFragment : Fragment() {
                     otherOrder.orderId, order.queuePosition
                 )
             } catch (e: Exception) {
-                // TODO: surface the reorder failure to the user (e.g. Snackbar)
+                Snackbar.make(binding.root, e.message ?: "Couldn't reorder the queue", Snackbar.LENGTH_LONG).show()
             }
         }
     }
@@ -67,7 +68,7 @@ class QueueManagementFragment : Fragment() {
             try {
                 adapter.submitList(orderRepository.getActiveQueue())
             } catch (e: Exception) {
-                // TODO: surface the fetch failure to the user (e.g. Snackbar)
+                Snackbar.make(binding.root, e.message ?: "Couldn't load the queue", Snackbar.LENGTH_LONG).show()
             }
         }
     }

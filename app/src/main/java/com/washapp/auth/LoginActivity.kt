@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.washapp.admin.AdminActivity
 import com.washapp.customer.CustomerActivity
 import com.washapp.data.model.Role
@@ -42,7 +43,7 @@ class LoginActivity : AppCompatActivity() {
                 startActivity(Intent(this@LoginActivity, destination))
                 finish()
             } catch (e: Exception) {
-                // TODO: surface authentication failure to the user (e.g. Snackbar)
+                Snackbar.make(binding.root, e.message ?: "Login failed", Snackbar.LENGTH_LONG).show()
             }
         }
     }

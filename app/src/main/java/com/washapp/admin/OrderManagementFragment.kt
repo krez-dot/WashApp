@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.washapp.data.model.Order
 import com.washapp.data.model.ServiceStage
 import com.washapp.data.repository.OrderRepository
@@ -55,7 +56,7 @@ class OrderManagementFragment : Fragment() {
                     adapter.updateItem(order.copy(stage = next))
                 }
             } catch (e: Exception) {
-                // TODO: surface the stage-update failure to the user (e.g. Snackbar)
+                Snackbar.make(binding.root, e.message ?: "Couldn't update the order", Snackbar.LENGTH_LONG).show()
             }
         }
     }
@@ -65,7 +66,7 @@ class OrderManagementFragment : Fragment() {
             try {
                 adapter.submitList(orderRepository.getOrdersInProgress())
             } catch (e: Exception) {
-                // TODO: surface the fetch failure to the user (e.g. Snackbar)
+                Snackbar.make(binding.root, e.message ?: "Couldn't load orders", Snackbar.LENGTH_LONG).show()
             }
         }
     }
