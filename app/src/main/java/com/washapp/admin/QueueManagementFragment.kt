@@ -47,8 +47,8 @@ class QueueManagementFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 orderRepository.swapQueuePositions(
-                    order.orderId, order.queuePosition,
-                    otherOrder.orderId, otherOrder.queuePosition
+                    order.orderId, order.queuePosition, order.stage.name,
+                    otherOrder.orderId, otherOrder.queuePosition, otherOrder.stage.name
                 )
                 // Update the list from the known write result rather than re-querying:
                 // Firestore's write acknowledgment can arrive slightly before the local

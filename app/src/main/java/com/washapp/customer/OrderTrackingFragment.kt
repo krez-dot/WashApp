@@ -7,6 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.database.ValueEventListener
+import com.washapp.data.model.Order
+import com.washapp.data.model.ServiceStage
 import com.washapp.data.repository.AuthRepository
 import com.washapp.data.repository.OrderRepository
 import com.washapp.databinding.FragmentOrderTrackingBinding
@@ -20,6 +23,11 @@ class OrderTrackingFragment : Fragment() {
     private val authRepository = AuthRepository()
     private val orderRepository = OrderRepository()
 
+    // Firestore holds the static order fields (cost, load size, ...); Realtime Database
+    // pushes live stage/queuePosition updates on top of this map without a manual refresh.
+    private val liveOrders = mutableMapOf<String, Order>()
+    private val statusListeners = mutableMapOf<String, ValueEventListener>()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -31,8 +39,6 @@ class OrderTrackingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // TODO: replace this one-shot Firestore read with a Realtime Database listener
-        // so the stage column updates live without a manual refresh.
         loadOrders()
     }
 
@@ -41,11 +47,15 @@ class OrderTrackingFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val orders = orderRepository.getOrdersForCustomer(customerId)
-                binding.ordersSummary.text = orders.joinToString(separator = "\n\n") { order ->
-                    "Order ${order.orderId.take(6)} — ${order.stage}\n" +
-                        "Queue position: ${order.queuePosition}\n" +
-                        "Estimated completion: ${order.estimatedCompletionMinutes} min\n" +
-                        "Cost: ₱${order.cost}"
+                liveOrders.clear()
+                orders.forEach { liveOrders[it.orderId] = it }
+                renderOrders()
+
+                orders.forEach { order ->
+                    val listener = orderRepository.observeOrderStatus(order.orderId) { stage, queuePosition ->
+                        onStatusUpdate(order.orderId, stage, queuePosition)
+                    }
+                    statusListeners[order.orderId] = listener
                 }
             } catch (e: Exception) {
                 Snackbar.make(binding.root, e.message ?: "Couldn't load your orders", Snackbar.LENGTH_LONG).show()
@@ -53,8 +63,35 @@ class OrderTrackingFragment : Fragment() {
         }
     }
 
+    private fun onStatusUpdate(orderId: String, stage: String, queuePosition: Int) {
+        if (_binding == null) return
+        val stageEnum = try {
+            ServiceStage.valueOf(stage)
+        } catch (e: IllegalArgumentException) {
+            return
+        }
+        val current = liveOrders[orderId] ?: return
+        liveOrders[orderId] = current.copy(stage = stageEnum, queuePosition = queuePosition)
+        renderOrders()
+    }
+
+    private fun renderOrders() {
+        val binding = _binding ?: return
+        binding.ordersSummary.text = liveOrders.values
+            .sortedBy { it.orderId }
+            .joinToString(separator = "\n\n") { order ->
+                "Order ${order.orderId.take(6)} — ${order.stage}\n" +
+                    "Queue position: ${order.queuePosition}\n" +
+                    "Estimated completion: ${order.estimatedCompletionMinutes} min\n" +
+                    "Cost: ₱${order.cost}"
+            }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
+        statusListeners.forEach { (orderId, listener) -> orderRepository.stopObserving(orderId, listener) }
+        statusListeners.clear()
+        liveOrders.clear()
         _binding = null
     }
 }

@@ -46,7 +46,7 @@ class OrderManagementFragment : Fragment() {
 
         lifecycleScope.launch {
             try {
-                orderRepository.updateStage(order.orderId, next.name)
+                orderRepository.updateStage(order.orderId, next.name, order.queuePosition)
                 // Update the list from the known write result rather than re-querying:
                 // Firestore's write acknowledgment can arrive slightly before the local
                 // query cache catches up, so an immediate re-fetch can read stale data.
