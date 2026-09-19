@@ -24,5 +24,12 @@ enum class ServiceStage {
     QUEUED,
     WASHING,
     DRYING,
-    COMPLETED
+    COMPLETED;
+
+    fun next(): ServiceStage? = when (this) {
+        QUEUED -> WASHING
+        WASHING -> DRYING
+        DRYING -> COMPLETED
+        COMPLETED -> null
+    }
 }

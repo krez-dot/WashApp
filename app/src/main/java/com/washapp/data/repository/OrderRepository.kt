@@ -26,6 +26,13 @@ class OrderRepository(
         return snapshot.toObjects(Order::class.java).sortedBy { it.queuePosition }
     }
 
+    suspend fun getOrdersInProgress(): List<Order> {
+        val snapshot = orders
+            .whereIn("stage", listOf("QUEUED", "WASHING", "DRYING"))
+            .get(Source.SERVER).await()
+        return snapshot.toObjects(Order::class.java).sortedBy { it.queuePosition }
+    }
+
     suspend fun updateStage(orderId: String, stage: String) {
         orders.document(orderId).update("stage", stage).await()
     }
