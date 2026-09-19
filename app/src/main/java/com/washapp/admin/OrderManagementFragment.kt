@@ -1,6 +1,8 @@
 package com.washapp.admin
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.washapp.data.model.Order
 import com.washapp.data.model.ServiceStage
+import com.washapp.data.repository.AuthRepository
 import com.washapp.data.repository.MachineRepository
 import com.washapp.data.repository.OrderRepository
 import com.washapp.data.scheduling.MachineScheduler
@@ -23,8 +26,11 @@ class OrderManagementFragment : Fragment() {
 
     private val orderRepository = OrderRepository()
     private val machineRepository = MachineRepository()
+    private val authRepository = AuthRepository()
     private lateinit var adapter: OrderManagementAdapter
     private val machineLabels = mutableMapOf<String, String>()
+    private val customerLabels = mutableMapOf<String, String>()
+    private var allOrders: List<Order> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,8 +48,27 @@ class OrderManagementFragment : Fragment() {
         binding.orderList.layoutManager = LinearLayoutManager(requireContext())
         binding.orderList.adapter = adapter
 
+        binding.searchInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) = applyFilter(s?.toString().orEmpty())
+        })
+
         loadOrders()
         loadMachineLabels()
+    }
+
+    private fun applyFilter(query: String) {
+        val trimmed = query.trim()
+        val filtered = if (trimmed.isEmpty()) {
+            allOrders
+        } else {
+            allOrders.filter { order ->
+                order.orderId.contains(trimmed, ignoreCase = true) ||
+                    (customerLabels[order.customerId] ?: "").contains(trimmed, ignoreCase = true)
+            }
+        }
+        adapter.submitList(filtered)
     }
 
     private fun advanceStage(order: Order) {
@@ -56,7 +81,7 @@ class OrderManagementFragment : Fragment() {
                     ServiceStage.COMPLETED -> completeOrder(order, next)
                     else -> {
                         orderRepository.updateStage(order.orderId, next.name, order.queuePosition)
-                        adapter.updateItem(order.copy(stage = next))
+                        replaceOrder(order.copy(stage = next))
                     }
                 }
             } catch (e: Exception) {
@@ -78,7 +103,7 @@ class OrderManagementFragment : Fragment() {
         // query cache catches up, so an immediate re-fetch can read stale data.
         machineLabels[machine.machineId] = machine.label
         adapter.setMachineLabels(machineLabels)
-        adapter.updateItem(order.copy(stage = next, assignedMachineId = machine.machineId))
+        replaceOrder(order.copy(stage = next, assignedMachineId = machine.machineId))
     }
 
     private suspend fun completeOrder(order: Order, next: ServiceStage) {
@@ -86,15 +111,36 @@ class OrderManagementFragment : Fragment() {
             machineRepository.releaseMachine(order.assignedMachineId)
         }
         orderRepository.updateStage(order.orderId, next.name, order.queuePosition)
+        allOrders = allOrders.filterNot { it.orderId == order.orderId }
         adapter.removeItem(order.orderId)
+    }
+
+    private fun replaceOrder(updated: Order) {
+        allOrders = allOrders.map { if (it.orderId == updated.orderId) updated else it }
+        adapter.updateItem(updated)
     }
 
     private fun loadOrders() {
         lifecycleScope.launch {
             try {
-                adapter.submitList(orderRepository.getOrdersInProgress())
+                allOrders = orderRepository.getOrdersInProgress()
+                adapter.submitList(allOrders)
+                loadCustomerLabels()
             } catch (e: Exception) {
                 Snackbar.make(binding.root, e.message ?: "Couldn't load orders", Snackbar.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun loadCustomerLabels() {
+        lifecycleScope.launch {
+            try {
+                val users = authRepository.getUsersByIds(allOrders.map { it.customerId })
+                customerLabels.clear()
+                users.forEach { (uid, user) -> customerLabels[uid] = "${user.name} · ${user.email}" }
+                adapter.setCustomerLabels(customerLabels)
+            } catch (e: Exception) {
+                // Non-critical: falls back to showing a truncated customer ID.
             }
         }
     }

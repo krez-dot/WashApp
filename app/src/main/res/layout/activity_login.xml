@@ -62,6 +62,18 @@
             android:layout_marginTop="20dp" />
 
         <TextView
+            android:id="@+id/forgotPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/action_forgot_password"
+            android:textAppearance="@style/TextAppearance.WashApp.Body"
+            android:padding="12dp"
+            android:layout_marginTop="4dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground" />
+
+        <TextView
             android:id="@+id/goToRegister"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

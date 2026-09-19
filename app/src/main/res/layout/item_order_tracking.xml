@@ -78,6 +78,18 @@
             android:textColor="@color/washapp_primary"
             tools:text="₱67.5" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cancelOrderButton"
+            style="@style/Widget.WashApp.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="4dp"
+            android:text="@string/action_cancel_order"
+            android:textColor="@color/washapp_error"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

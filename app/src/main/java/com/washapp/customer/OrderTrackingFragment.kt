@@ -7,8 +7,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.ValueEventListener
+import com.washapp.R
 import com.washapp.data.model.Order
 import com.washapp.data.model.ServiceStage
 import com.washapp.data.repository.AuthRepository
@@ -42,11 +44,38 @@ class OrderTrackingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = OrderTrackingAdapter()
+        adapter = OrderTrackingAdapter(onCancel = { order -> confirmCancel(order) })
         binding.ordersList.layoutManager = LinearLayoutManager(requireContext())
         binding.ordersList.adapter = adapter
 
         loadOrders()
+    }
+
+    private fun confirmCancel(order: Order) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.title_cancel_order)
+            .setMessage(R.string.message_cancel_order)
+            .setPositiveButton(R.string.action_cancel_order) { _, _ -> cancelOrder(order) }
+            .setNegativeButton(R.string.action_cancel, null)
+            .show()
+    }
+
+    private fun cancelOrder(order: Order) {
+        lifecycleScope.launch {
+            try {
+                orderRepository.cancelOrder(order.orderId)
+                statusListeners.remove(order.orderId)?.let {
+                    orderRepository.stopObserving(order.orderId, it)
+                }
+                liveOrders.remove(order.orderId)
+                if (_binding != null) {
+                    adapter.removeItem(order.orderId)
+                    binding.emptyState.visibility = if (liveOrders.isEmpty()) View.VISIBLE else View.GONE
+                }
+            } catch (e: Exception) {
+                Snackbar.make(binding.root, e.message ?: "Couldn't cancel the order", Snackbar.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun loadOrders() {

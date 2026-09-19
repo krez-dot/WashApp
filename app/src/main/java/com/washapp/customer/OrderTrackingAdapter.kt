@@ -9,7 +9,9 @@ import com.washapp.data.model.ServiceStage
 import com.washapp.data.model.ServiceType
 import com.washapp.databinding.ItemOrderTrackingBinding
 
-class OrderTrackingAdapter : RecyclerView.Adapter<OrderTrackingAdapter.OrderViewHolder>() {
+class OrderTrackingAdapter(
+    private val onCancel: (Order) -> Unit
+) : RecyclerView.Adapter<OrderTrackingAdapter.OrderViewHolder>() {
 
     private val orders = mutableListOf<Order>()
 
@@ -24,6 +26,13 @@ class OrderTrackingAdapter : RecyclerView.Adapter<OrderTrackingAdapter.OrderView
         if (index == -1) return
         orders[index] = updated
         notifyItemChanged(index)
+    }
+
+    fun removeItem(orderId: String) {
+        val index = orders.indexOfFirst { it.orderId == orderId }
+        if (index == -1) return
+        orders.removeAt(index)
+        notifyItemRemoved(index)
     }
 
     fun isEmpty(): Boolean = orders.isEmpty()
@@ -61,6 +70,14 @@ class OrderTrackingAdapter : RecyclerView.Adapter<OrderTrackingAdapter.OrderView
             }
             binding.stageChip.backgroundTintList =
                 ColorStateList.valueOf(context.getColor(colorRes))
+
+            if (order.stage == ServiceStage.QUEUED) {
+                binding.cancelOrderButton.visibility = android.view.View.VISIBLE
+                binding.cancelOrderButton.setOnClickListener { onCancel(order) }
+            } else {
+                binding.cancelOrderButton.visibility = android.view.View.GONE
+                binding.cancelOrderButton.setOnClickListener(null)
+            }
         }
     }
 }

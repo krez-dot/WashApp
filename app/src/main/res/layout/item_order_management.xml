@@ -12,24 +12,39 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/orderSummary"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textAppearance="@style/TextAppearance.WashApp.Title"
-            tools:text="#1 · a1b2c3 · COLORED · 2.0kg · QUEUED" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/advanceStageButton"
-            style="@style/Widget.WashApp.Button.Text"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/orderSummary"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.WashApp.Title"
+                tools:text="#1 · a1b2c3 · COLORED · 2.0kg · QUEUED" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/advanceStageButton"
+                style="@style/Widget.WashApp.Button.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Start Washing" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/customerLabel"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:text="Start Washing" />
+            android:layout_marginTop="4dp"
+            android:textAppearance="@style/TextAppearance.WashApp.Body"
+            tools:text="Juan Dela Cruz · juan@example.com" />
 
     </LinearLayout>
 

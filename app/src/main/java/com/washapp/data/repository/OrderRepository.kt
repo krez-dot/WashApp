@@ -63,6 +63,11 @@ class OrderRepository(
         pushStatus(otherOrderId, otherStage, position)
     }
 
+    suspend fun cancelOrder(orderId: String) {
+        orders.document(orderId).delete().await()
+        orderStatus.child(orderId).removeValue().await()
+    }
+
     private suspend fun pushStatus(orderId: String, stage: String, queuePosition: Int) {
         orderStatus.child(orderId)
             .setValue(mapOf("stage" to stage, "queuePosition" to queuePosition))

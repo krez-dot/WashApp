@@ -14,6 +14,7 @@ class OrderManagementAdapter(
 
     private val orders = mutableListOf<Order>()
     private var machineLabels: Map<String, String> = emptyMap()
+    private var customerLabels: Map<String, String> = emptyMap()
 
     fun submitList(newOrders: List<Order>) {
         orders.clear()
@@ -23,6 +24,11 @@ class OrderManagementAdapter(
 
     fun setMachineLabels(labels: Map<String, String>) {
         machineLabels = labels
+        notifyDataSetChanged()
+    }
+
+    fun setCustomerLabels(labels: Map<String, String>) {
+        customerLabels = labels
         notifyDataSetChanged()
     }
 
@@ -64,6 +70,7 @@ class OrderManagementAdapter(
             binding.orderSummary.text =
                 "#${order.queuePosition} · ${order.orderId.take(6)} · ${order.serviceType} · " +
                     "${order.loadSizeKg}kg · ${order.stage}$machineSuffix"
+            binding.customerLabel.text = customerLabels[order.customerId] ?: order.customerId.take(8)
 
             val next = order.stage.next()
             if (next == null) {

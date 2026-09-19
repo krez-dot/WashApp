@@ -1,6 +1,7 @@
 package com.washapp.data.repository
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.washapp.data.model.Role
 import com.washapp.data.model.User
@@ -33,5 +34,20 @@ class AuthRepository(
 
     fun logout() = auth.signOut()
 
+    suspend fun sendPasswordResetEmail(email: String) {
+        auth.sendPasswordResetEmail(email).await()
+    }
+
     fun currentUserId(): String? = auth.currentUser?.uid
+
+    suspend fun getUsersByIds(uids: List<String>): Map<String, User> {
+        val distinctIds = uids.distinct()
+        if (distinctIds.isEmpty()) return emptyMap()
+        val snapshot = firestore.collection(FirestorePaths.USERS)
+            .whereIn(FieldPath.documentId(), distinctIds.take(30))
+            .get().await()
+        return snapshot.documents.associate { doc ->
+            doc.id to (doc.toObject(User::class.java) ?: User(uid = doc.id))
+        }
+    }
 }
