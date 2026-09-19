@@ -49,4 +49,8 @@ class MachineRepository(
             )
         ).await()
     }
+
+    suspend fun deleteMachine(machineId: String) {
+        machines.document(machineId).delete().await()
+    }
 }

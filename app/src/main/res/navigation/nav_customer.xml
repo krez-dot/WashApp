@@ -17,4 +17,10 @@
         android:label="@string/title_track_order"
         tools:layout="@layout/fragment_order_tracking" />
 
+    <fragment
+        android:id="@+id/orderHistoryFragment"
+        android:name="com.washapp.customer.OrderHistoryFragment"
+        android:label="@string/title_order_history"
+        tools:layout="@layout/fragment_order_tracking" />
+
 </navigation>

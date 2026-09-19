@@ -39,6 +39,17 @@
             android:layout_height="wrap_content"
             android:text="@string/action_toggle_availability" />
 
+        <ImageButton
+            android:id="@+id/deleteMachineButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_delete_machine"
+            android:padding="8dp"
+            android:src="@drawable/ic_delete"
+            app:tint="@color/washapp_error" />
+
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

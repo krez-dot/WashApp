@@ -27,6 +27,8 @@
 
     <string name="title_track_order">Track Order</string>
     <string name="placeholder_no_orders">No orders yet.</string>
+    <string name="title_order_history">History</string>
+    <string name="placeholder_no_history">No completed orders yet.</string>
     <string name="action_cancel_order">Cancel order</string>
     <string name="title_cancel_order">Cancel this order?</string>
     <string name="message_cancel_order">This can\'t be undone.</string>
@@ -43,6 +45,9 @@
     <string name="hint_machine_label">New machine label</string>
     <string name="action_add_machine">Add</string>
     <string name="action_toggle_availability">Toggle</string>
+    <string name="action_delete_machine">Delete machine</string>
+    <string name="message_machine_in_use">Can\'t delete a machine that\'s currently in use</string>
+    <string name="title_delete_machine">Delete this machine?</string>
 
     <string name="title_service_non_colored">Non-Colored</string>
     <string name="title_service_colored">Colored</string>
@@ -51,5 +56,19 @@
     <string name="hint_dry_minutes_per_kg">Dry minutes per kg</string>
     <string name="action_save">Save</string>
 
+    <string name="title_reports">Reports</string>
+    <string name="label_total_orders">Total orders</string>
+    <string name="label_total_revenue">Total revenue</string>
+    <string name="label_completed_orders">Completed</string>
+    <string name="label_in_progress_orders">In progress</string>
+    <string name="label_colored_vs_non_colored">Colored vs Non-Colored</string>
+    <string name="format_colored_split">%1$d colored · %2$d non-colored</string>
+    <string name="format_currency">₱%.2f</string>
+
     <string name="logout">Log out</string>
+
+    <string name="title_account">Account</string>
+    <string name="format_account_details">Name: %1$s\nEmail: %2$s\nRole: %3$s</string>
+    <string name="action_reset_password">Reset password</string>
+    <string name="content_description_account">Account</string>
 </resources>

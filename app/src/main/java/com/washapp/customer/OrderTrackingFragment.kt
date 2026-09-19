@@ -83,6 +83,7 @@ class OrderTrackingFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val orders = orderRepository.getOrdersForCustomer(customerId)
+                    .filter { it.stage != ServiceStage.COMPLETED }
                 liveOrders.clear()
                 orders.forEach { liveOrders[it.orderId] = it }
                 renderOrders()
@@ -107,6 +108,13 @@ class OrderTrackingFragment : Fragment() {
             return
         }
         val current = liveOrders[orderId] ?: return
+        if (stageEnum == ServiceStage.COMPLETED) {
+            statusListeners.remove(orderId)?.let { orderRepository.stopObserving(orderId, it) }
+            liveOrders.remove(orderId)
+            adapter.removeItem(orderId)
+            binding.emptyState.visibility = if (liveOrders.isEmpty()) View.VISIBLE else View.GONE
+            return
+        }
         val updated = current.copy(stage = stageEnum, queuePosition = queuePosition)
         liveOrders[orderId] = updated
         adapter.updateItem(updated)

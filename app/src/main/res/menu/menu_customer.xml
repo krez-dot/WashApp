@@ -8,4 +8,8 @@
         android:id="@+id/orderTrackingFragment"
         android:icon="@drawable/ic_track_order"
         android:title="@string/title_track_order" />
+    <item
+        android:id="@+id/orderHistoryFragment"
+        android:icon="@drawable/ic_history"
+        android:title="@string/title_order_history" />
 </menu>

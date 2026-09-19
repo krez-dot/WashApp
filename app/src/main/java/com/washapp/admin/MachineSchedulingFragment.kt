@@ -7,7 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.washapp.R
 import com.washapp.data.model.Machine
 import com.washapp.data.repository.MachineRepository
 import com.washapp.databinding.FragmentMachineSchedulingBinding
@@ -33,7 +35,10 @@ class MachineSchedulingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = MachineAdapter(onToggleAvailability = { machine -> toggleAvailability(machine) })
+        adapter = MachineAdapter(
+            onToggleAvailability = { machine -> toggleAvailability(machine) },
+            onDelete = { machine -> confirmDelete(machine) }
+        )
         binding.machineList.layoutManager = LinearLayoutManager(requireContext())
         binding.machineList.adapter = adapter
 
@@ -71,6 +76,30 @@ class MachineSchedulingFragment : Fragment() {
                 adapter.updateItem(updated)
             } catch (e: Exception) {
                 Snackbar.make(binding.root, e.message ?: "Couldn't update the machine", Snackbar.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun confirmDelete(machine: Machine) {
+        if (!machine.isAvailable) {
+            Snackbar.make(binding.root, R.string.message_machine_in_use, Snackbar.LENGTH_LONG).show()
+            return
+        }
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.title_delete_machine)
+            .setMessage(machine.label)
+            .setPositiveButton(R.string.action_delete_machine) { _, _ -> deleteMachine(machine) }
+            .setNegativeButton(R.string.action_cancel, null)
+            .show()
+    }
+
+    private fun deleteMachine(machine: Machine) {
+        lifecycleScope.launch {
+            try {
+                machineRepository.deleteMachine(machine.machineId)
+                adapter.removeItem(machine.machineId)
+            } catch (e: Exception) {
+                Snackbar.make(binding.root, e.message ?: "Couldn't delete the machine", Snackbar.LENGTH_LONG).show()
             }
         }
     }

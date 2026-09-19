@@ -26,6 +26,15 @@
             android:textAppearance="@style/TextAppearance.WashApp.Title" />
 
         <ImageButton
+            android:id="@+id/accountButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/content_description_account"
+            android:padding="12dp"
+            android:src="@drawable/ic_account" />
+
+        <ImageButton
             android:id="@+id/logoutButton"
             android:layout_width="48dp"
             android:layout_height="48dp"

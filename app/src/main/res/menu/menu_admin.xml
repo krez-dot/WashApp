@@ -16,4 +16,8 @@
         android:id="@+id/serviceConfigFragment"
         android:icon="@drawable/ic_services"
         android:title="@string/title_service_config" />
+    <item
+        android:id="@+id/reportsFragment"
+        android:icon="@drawable/ic_reports"
+        android:title="@string/title_reports" />
 </menu>

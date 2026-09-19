@@ -29,4 +29,10 @@
         android:label="@string/title_service_config"
         tools:layout="@layout/fragment_service_config" />
 
+    <fragment
+        android:id="@+id/reportsFragment"
+        android:name="com.washapp.admin.ReportsFragment"
+        android:label="@string/title_reports"
+        tools:layout="@layout/fragment_reports" />
+
 </navigation>

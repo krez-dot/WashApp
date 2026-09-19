@@ -32,6 +32,12 @@ class AuthRepository(
         return snapshot.toObject(User::class.java)?.role ?: Role.CUSTOMER
     }
 
+    suspend fun getCurrentUser(): User? {
+        val uid = auth.currentUser?.uid ?: return null
+        val snapshot = firestore.collection(FirestorePaths.USERS).document(uid).get().await()
+        return snapshot.toObject(User::class.java)
+    }
+
     fun logout() = auth.signOut()
 
     suspend fun sendPasswordResetEmail(email: String) {

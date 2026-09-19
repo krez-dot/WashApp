@@ -24,6 +24,11 @@ class OrderRepository(
         return docRef.id
     }
 
+    suspend fun getAllOrders(): List<Order> {
+        val snapshot = orders.get(Source.SERVER).await()
+        return snapshot.toObjects(Order::class.java)
+    }
+
     suspend fun getOrdersForCustomer(customerId: String): List<Order> {
         val snapshot = orders.whereEqualTo("customerId", customerId).get(Source.SERVER).await()
         return snapshot.toObjects(Order::class.java)

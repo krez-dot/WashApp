@@ -7,7 +7,8 @@ import com.washapp.data.model.Machine
 import com.washapp.databinding.ItemMachineBinding
 
 class MachineAdapter(
-    private val onToggleAvailability: (Machine) -> Unit
+    private val onToggleAvailability: (Machine) -> Unit,
+    private val onDelete: (Machine) -> Unit
 ) : RecyclerView.Adapter<MachineAdapter.MachineViewHolder>() {
 
     private val machines = mutableListOf<Machine>()
@@ -30,6 +31,13 @@ class MachineAdapter(
         notifyItemInserted(machines.size - 1)
     }
 
+    fun removeItem(machineId: String) {
+        val index = machines.indexOfFirst { it.machineId == machineId }
+        if (index == -1) return
+        machines.removeAt(index)
+        notifyItemRemoved(index)
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): MachineViewHolder {
         val binding = ItemMachineBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return MachineViewHolder(binding)
@@ -48,6 +56,7 @@ class MachineAdapter(
             val status = if (machine.isAvailable) "Available" else "In use"
             binding.machineLabel.text = "${machine.label} · $status"
             binding.toggleAvailabilityButton.setOnClickListener { onToggleAvailability(machine) }
+            binding.deleteMachineButton.setOnClickListener { onDelete(machine) }
         }
     }
 }
