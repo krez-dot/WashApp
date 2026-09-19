@@ -36,4 +36,6 @@
     <string name="hint_wash_minutes_per_kg">Wash minutes per kg</string>
     <string name="hint_dry_minutes_per_kg">Dry minutes per kg</string>
     <string name="action_save">Save</string>
+
+    <string name="logout">Log out</string>
 </resources>
