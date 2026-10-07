@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.washapp.data.model.Order
 import com.washapp.data.model.ServiceStage
 import com.washapp.databinding.ItemOrderManagementBinding
+import com.washapp.util.bindStageChip
+import com.washapp.util.serviceTypeLabel
 
 class OrderManagementAdapter(
     private val onAdvanceStage: (Order) -> Unit
@@ -61,15 +63,20 @@ class OrderManagementAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(order: Order) {
-            val machineSuffix = if (order.assignedMachineId.isNotEmpty()) {
-                val label = machineLabels[order.assignedMachineId] ?: order.assignedMachineId.take(6)
-                " · $label"
+            val context = binding.root.context
+            binding.orderSummary.text = "Order ${order.orderId.take(6)}"
+            binding.stageChip.bindStageChip(order.stage)
+            binding.orderDetailsLabel.text = "Queue #${order.queuePosition} · " +
+                "${context.serviceTypeLabel(order.serviceType)} · ${order.loadSizeKg} kg"
+
+            if (order.assignedMachineId.isNotEmpty()) {
+                binding.machineLabel.visibility = View.VISIBLE
+                binding.machineLabel.text =
+                    machineLabels[order.assignedMachineId] ?: order.assignedMachineId.take(6)
             } else {
-                ""
+                binding.machineLabel.visibility = View.GONE
             }
-            binding.orderSummary.text =
-                "#${order.queuePosition} · ${order.orderId.take(6)} · ${order.serviceType} · " +
-                    "${order.loadSizeKg}kg · ${order.stage}$machineSuffix"
+
             binding.customerLabel.text = customerLabels[order.customerId] ?: order.customerId.take(8)
 
             val next = order.stage.next()

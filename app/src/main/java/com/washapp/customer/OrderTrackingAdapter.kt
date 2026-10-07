@@ -8,6 +8,8 @@ import com.washapp.data.model.Order
 import com.washapp.data.model.ServiceStage
 import com.washapp.data.model.ServiceType
 import com.washapp.databinding.ItemOrderTrackingBinding
+import com.washapp.util.bindStageChip
+import com.washapp.util.serviceTypeLabel
 
 class OrderTrackingAdapter(
     private val onCancel: (Order) -> Unit
@@ -54,22 +56,13 @@ class OrderTrackingAdapter(
         fun bind(order: Order) {
             val context = binding.root.context
             binding.orderIdLabel.text = "Order ${order.orderId.take(6)}"
-            binding.stageChip.text = order.stage.name
-            val serviceLabel = if (order.serviceType == ServiceType.COLORED) "Colored" else "Non-Colored"
-            binding.orderDetailsLabel.text = "$serviceLabel · ${order.loadSizeKg} kg"
+            binding.stageChip.bindStageChip(order.stage)
+            binding.orderDetailsLabel.text =
+                "${context.serviceTypeLabel(order.serviceType)} · ${order.loadSizeKg} kg"
             binding.queuePositionLabel.text = "Queue position: ${order.queuePosition}"
             binding.estimatedCompletionLabel.text =
                 "Estimated completion: ${order.estimatedCompletionMinutes} min"
             binding.costLabel.text = "₱${order.cost}"
-
-            val colorRes = when (order.stage) {
-                ServiceStage.QUEUED -> com.washapp.R.color.washapp_stage_queued
-                ServiceStage.WASHING -> com.washapp.R.color.washapp_stage_washing
-                ServiceStage.DRYING -> com.washapp.R.color.washapp_stage_drying
-                ServiceStage.COMPLETED -> com.washapp.R.color.washapp_stage_completed
-            }
-            binding.stageChip.backgroundTintList =
-                ColorStateList.valueOf(context.getColor(colorRes))
 
             if (order.stage == ServiceStage.QUEUED) {
                 binding.cancelOrderButton.visibility = android.view.View.VISIBLE

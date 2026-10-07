@@ -4,16 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp"
-    app:cardCornerRadius="14dp"
-    app:cardElevation="1dp"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
     app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="18dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -27,24 +27,58 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textAppearance="@style/TextAppearance.WashApp.Title"
-                tools:text="#1 · a1b2c3 · COLORED · 2.0kg · QUEUED" />
+                tools:text="Order a1b2c3" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/advanceStageButton"
-                style="@style/Widget.WashApp.Button.Text"
+            <TextView
+                android:id="@+id/stageChip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="Start Washing" />
+                android:background="@drawable/bg_stage_chip"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:textColor="@color/washapp_on_primary"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_semibold"
+                tools:text="WASHING" />
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/orderDetailsLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textAppearance="@style/TextAppearance.WashApp.Body"
+            tools:text="Queue #2 · Non-Colored · 2.0 kg" />
+
+        <TextView
+            android:id="@+id/machineLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textAppearance="@style/TextAppearance.WashApp.Body"
+            android:visibility="gone"
+            tools:text="Machine 2"
+            tools:visibility="visible" />
 
         <TextView
             android:id="@+id/customerLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="2dp"
             android:textAppearance="@style/TextAppearance.WashApp.Body"
             tools:text="Juan Dela Cruz · juan@example.com" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/advanceStageButton"
+            style="@style/Widget.WashApp.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="4dp"
+            tools:text="Start Washing" />
 
     </LinearLayout>
 
