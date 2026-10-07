@@ -100,6 +100,7 @@ class OrderSubmissionFragment : Fragment() {
                 binding.loadSizeInput.text?.clear()
                 binding.coloredCheckbox.isChecked = false
                 binding.pricePreviewLabel.visibility = View.GONE
+                (activity as? CustomerActivity)?.refreshStatusNotifier()
                 showConfirmation(order)
             } catch (e: Exception) {
                 Snackbar.make(binding.root, e.message ?: "Order submission failed", Snackbar.LENGTH_LONG).show()

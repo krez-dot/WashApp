@@ -67,6 +67,14 @@
 
     <string name="logout">Log out</string>
 
+    <string name="channel_order_status_name">Order status</string>
+    <string name="channel_order_status_description">Alerts when your laundry moves to the next stage</string>
+    <string name="notification_title">Order %1$s</string>
+    <string name="notification_stage_queued">Your order is queued.</string>
+    <string name="notification_stage_washing">Your laundry is now being washed.</string>
+    <string name="notification_stage_drying">Your laundry is now being dried.</string>
+    <string name="notification_stage_completed">Your laundry is ready for pick-up.</string>
+
     <string name="title_account">Account</string>
     <string name="format_account_details">Name: %1$s\nEmail: %2$s\nRole: %3$s</string>
     <string name="action_reset_password">Reset password</string>
