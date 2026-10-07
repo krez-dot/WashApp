@@ -3,12 +3,16 @@ package com.washapp
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import androidx.appcompat.app.AppCompatDelegate
 import com.google.firebase.FirebaseApp
 
 class WashApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        // The palette is defined only in light values, so following the system into
+        // dark mode leaves light surfaces with dark-mode text on them.
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         FirebaseApp.initializeApp(this)
         createOrderStatusChannel()
     }

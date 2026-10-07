@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.WashApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.WashApp" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/washapp_primary</item>
         <item name="colorPrimaryDark">@color/washapp_primary_dark</item>
         <item name="colorAccent">@color/washapp_accent</item>
