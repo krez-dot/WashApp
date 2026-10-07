@@ -101,6 +101,75 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_revenue_breakdown"
+                    android:textAppearance="@style/TextAppearance.WashApp.Title"
+                    android:layout_marginBottom="10dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_today"
+                    android:textAppearance="@style/TextAppearance.WashApp.Body" />
+
+                <TextView
+                    android:id="@+id/todayLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.WashApp.Title"
+                    android:textColor="@color/washapp_primary"
+                    tools:text="3 orders · ₱450.00" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/label_this_week"
+                    android:textAppearance="@style/TextAppearance.WashApp.Body" />
+
+                <TextView
+                    android:id="@+id/thisWeekLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.WashApp.Title"
+                    android:textColor="@color/washapp_primary"
+                    tools:text="11 orders · ₱1,230.00" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/label_this_month"
+                    android:textAppearance="@style/TextAppearance.WashApp.Body" />
+
+                <TextView
+                    android:id="@+id/thisMonthLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.WashApp.Title"
+                    android:textColor="@color/washapp_primary"
+                    tools:text="28 orders · ₱3,980.00" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp"
             app:strokeWidth="0dp">

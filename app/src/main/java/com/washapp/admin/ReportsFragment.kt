@@ -8,10 +8,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.washapp.R
+import com.washapp.data.model.Order
 import com.washapp.data.model.ServiceStage
 import com.washapp.data.model.ServiceType
 import com.washapp.data.repository.OrderRepository
 import com.washapp.databinding.FragmentReportsBinding
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.ZoneId
 import kotlinx.coroutines.launch
 
 class ReportsFragment : Fragment() {
@@ -51,10 +55,26 @@ class ReportsFragment : Fragment() {
                 binding.inProgressOrdersLabel.text = "$inProgress in progress"
                 binding.coloredSplitLabel.text =
                     getString(R.string.format_colored_split, colored, nonColored)
+
+                val zone = ZoneId.systemDefault()
+                val today = LocalDate.now(zone)
+                binding.todayLabel.text = summarize(orders, startOfDay(today, zone))
+                binding.thisWeekLabel.text =
+                    summarize(orders, startOfDay(today.with(DayOfWeek.MONDAY), zone))
+                binding.thisMonthLabel.text =
+                    summarize(orders, startOfDay(today.withDayOfMonth(1), zone))
             } catch (e: Exception) {
                 Snackbar.make(binding.root, e.message ?: "Couldn't load report", Snackbar.LENGTH_LONG).show()
             }
         }
+    }
+
+    private fun startOfDay(date: LocalDate, zone: ZoneId): Long =
+        date.atStartOfDay(zone).toInstant().toEpochMilli()
+
+    private fun summarize(orders: List<Order>, since: Long): String {
+        val inPeriod = orders.filter { it.createdAt >= since }
+        return getString(R.string.format_period_summary, inPeriod.size, inPeriod.sumOf { it.cost })
     }
 
     override fun onDestroyView() {

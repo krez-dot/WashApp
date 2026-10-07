@@ -64,6 +64,11 @@
     <string name="label_colored_vs_non_colored">Colored vs Non-Colored</string>
     <string name="format_colored_split">%1$d colored · %2$d non-colored</string>
     <string name="format_currency">₱%.2f</string>
+    <string name="label_revenue_breakdown">Revenue breakdown</string>
+    <string name="label_today">Today</string>
+    <string name="label_this_week">This week</string>
+    <string name="label_this_month">This month</string>
+    <string name="format_period_summary">%1$d orders · ₱%2$.2f</string>
 
     <string name="logout">Log out</string>
 
@@ -78,5 +83,9 @@
     <string name="title_account">Account</string>
     <string name="format_account_details">Name: %1$s\nEmail: %2$s\nRole: %3$s</string>
     <string name="action_reset_password">Reset password</string>
+    <string name="action_edit_profile">Edit profile</string>
+    <string name="title_edit_profile">Edit profile</string>
+    <string name="message_name_required">Enter your name</string>
+    <string name="message_profile_updated">Profile updated</string>
     <string name="content_description_account">Account</string>
 </resources>

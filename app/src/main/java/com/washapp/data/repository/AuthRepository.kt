@@ -44,6 +44,11 @@ class AuthRepository(
         auth.sendPasswordResetEmail(email).await()
     }
 
+    suspend fun updateProfileName(name: String) {
+        val uid = auth.currentUser?.uid ?: return
+        firestore.collection(FirestorePaths.USERS).document(uid).update("name", name).await()
+    }
+
     fun currentUserId(): String? = auth.currentUser?.uid
 
     suspend fun getUsersByIds(uids: List<String>): Map<String, User> {
