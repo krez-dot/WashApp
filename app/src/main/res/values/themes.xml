@@ -9,6 +9,7 @@
         <item name="colorOnSurface">@color/washapp_on_surface</item>
         <item name="colorError">@color/washapp_error</item>
         <item name="android:windowBackground">@color/washapp_background</item>
+        <item name="android:forceDarkAllowed">false</item>
         <item name="android:fontFamily">@font/poppins_regular</item>
         <item name="fontFamily">@font/poppins_regular</item>
         <item name="materialButtonStyle">@style/Widget.WashApp.Button</item>

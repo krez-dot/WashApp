@@ -1,5 +1,6 @@
 package com.washapp.data.repository
 
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
@@ -47,6 +48,14 @@ class AuthRepository(
     suspend fun updateProfileName(name: String) {
         val uid = auth.currentUser?.uid ?: return
         firestore.collection(FirestorePaths.USERS).document(uid).update("name", name).await()
+    }
+
+    /** Firebase only allows a password change shortly after sign-in, so re-verify the current one first. */
+    suspend fun changePassword(currentPassword: String, newPassword: String) {
+        val user = auth.currentUser ?: return
+        val email = user.email ?: return
+        user.reauthenticate(EmailAuthProvider.getCredential(email, currentPassword)).await()
+        user.updatePassword(newPassword).await()
     }
 
     fun currentUserId(): String? = auth.currentUser?.uid

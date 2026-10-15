@@ -98,5 +98,15 @@
     <string name="title_edit_profile">Edit profile</string>
     <string name="message_name_required">Enter your name</string>
     <string name="message_profile_updated">Profile updated</string>
+    <string name="label_change_password">Change password</string>
+    <string name="message_change_password_optional">Leave blank to keep your current password.</string>
+    <string name="hint_current_password">Current password</string>
+    <string name="hint_new_password">New password</string>
+    <string name="hint_confirm_password">Confirm new password</string>
+    <string name="error_current_password_required">Enter your current password</string>
+    <string name="error_current_password_wrong">Current password is incorrect</string>
+    <string name="error_new_password_short">Use at least 6 characters</string>
+    <string name="error_passwords_dont_match">Passwords don\'t match</string>
+    <string name="message_profile_and_password_updated">Profile and password updated</string>
     <string name="content_description_account">Account</string>
 </resources>
