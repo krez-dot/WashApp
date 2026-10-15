@@ -81,6 +81,7 @@
     <string name="label_in_progress_orders">In progress</string>
     <string name="label_colored_vs_non_colored">Colored vs Non-Colored</string>
     <string name="format_colored_split">%1$d colored · %2$d non-colored</string>
+    <string name="format_placed_on">Placed %1$s</string>
     <string name="format_currency">₱%.2f</string>
     <string name="label_revenue_breakdown">Revenue breakdown</string>
     <string name="label_today">Today</string>

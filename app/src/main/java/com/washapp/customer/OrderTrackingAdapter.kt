@@ -11,6 +11,9 @@ import com.washapp.data.model.ServiceType
 import com.washapp.databinding.ItemOrderTrackingBinding
 import com.washapp.util.bindStageChip
 import com.washapp.util.orderServiceLabel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class OrderTrackingAdapter(
     private val onCancel: (Order) -> Unit
@@ -62,11 +65,21 @@ class OrderTrackingAdapter(
                 "${context.orderServiceLabel(order)} · ${order.loadSizeKg} kg"
             binding.priorityBadge.visibility =
                 if (order.priority) android.view.View.VISIBLE else android.view.View.GONE
-            binding.queuePositionLabel.text = "Queue position: ${order.queuePosition}"
-            binding.estimatedCompletionLabel.text =
-                "Estimated completion: ${order.estimatedCompletionMinutes} min"
-            val cost = "₱${order.cost}"
-            binding.costLabel.text = cost
+            if (order.stage == ServiceStage.COMPLETED) {
+                // A finished order has no queue or wait left, so show when it was placed instead.
+                val placed = SimpleDateFormat("MMM d, yyyy · h:mm a", Locale.getDefault())
+                    .format(Date(order.createdAt))
+                binding.queuePositionLabel.text = context.getString(R.string.format_placed_on, placed)
+                binding.estimatedCompletionLabel.visibility = android.view.View.GONE
+                binding.stageProgress.visibility = android.view.View.GONE
+            } else {
+                binding.queuePositionLabel.text = "Queue position: ${order.queuePosition}"
+                binding.estimatedCompletionLabel.text =
+                    "Estimated completion: ${order.estimatedCompletionMinutes} min"
+                binding.estimatedCompletionLabel.visibility = android.view.View.VISIBLE
+                bindProgress(order)
+            }
+            binding.costLabel.text = context.getString(R.string.format_currency, order.cost)
 
             if (order.stage == ServiceStage.QUEUED) {
                 binding.cancelOrderButton.visibility = android.view.View.VISIBLE
@@ -75,6 +88,29 @@ class OrderTrackingAdapter(
                 binding.cancelOrderButton.visibility = android.view.View.GONE
                 binding.cancelOrderButton.setOnClickListener(null)
             }
+        }
+
+        /** Fills the bar in equal steps across the stages this order will actually pass through. */
+        private fun bindProgress(order: Order) {
+            val steps = if (order.folding) 5 else 4
+            val position = when (order.stage) {
+                ServiceStage.QUEUED -> 1
+                ServiceStage.WASHING -> 2
+                ServiceStage.DRYING -> 3
+                ServiceStage.FOLDING -> 4
+                ServiceStage.COMPLETED -> steps
+            }
+            val context = binding.root.context
+            val colorRes = when (order.stage) {
+                ServiceStage.QUEUED -> R.color.washapp_stage_queued
+                ServiceStage.WASHING -> R.color.washapp_stage_washing
+                ServiceStage.DRYING -> R.color.washapp_stage_drying
+                ServiceStage.FOLDING -> R.color.washapp_stage_folding
+                ServiceStage.COMPLETED -> R.color.washapp_stage_completed
+            }
+            binding.stageProgress.visibility = android.view.View.VISIBLE
+            binding.stageProgress.setIndicatorColor(context.getColor(colorRes))
+            binding.stageProgress.setProgressCompat(position * 100 / steps, false)
         }
     }
 }

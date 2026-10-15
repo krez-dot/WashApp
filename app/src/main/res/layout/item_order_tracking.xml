@@ -45,6 +45,17 @@
 
         </LinearLayout>
 
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/stageProgress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:max="100"
+            app:trackColor="@color/washapp_outline"
+            app:trackCornerRadius="4dp"
+            app:trackThickness="6dp"
+            tools:progress="50" />
+
         <TextView
             android:id="@+id/priorityBadge"
             android:layout_width="wrap_content"
