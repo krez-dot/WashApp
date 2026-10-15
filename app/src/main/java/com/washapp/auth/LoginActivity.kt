@@ -2,10 +2,12 @@ package com.washapp.auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.washapp.BuildConfig
 import com.washapp.R
 import com.washapp.admin.AdminActivity
 import com.washapp.customer.CustomerActivity
@@ -30,6 +32,24 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
         binding.forgotPassword.setOnClickListener { showResetPasswordDialog() }
+        setUpDevLogin()
+    }
+
+    /** Debug-only shortcuts to the test accounts; hidden unless local.properties supplies them. */
+    private fun setUpDevLogin() {
+        val customerReady = BuildConfig.DEV_CUSTOMER_EMAIL.isNotEmpty()
+        val adminReady = BuildConfig.DEV_ADMIN_EMAIL.isNotEmpty()
+        if (!BuildConfig.DEBUG || !(customerReady || adminReady)) return
+
+        binding.devLoginRow.visibility = View.VISIBLE
+        binding.devCustomerButton.isEnabled = customerReady
+        binding.devAdminButton.isEnabled = adminReady
+        binding.devCustomerButton.setOnClickListener {
+            login(BuildConfig.DEV_CUSTOMER_EMAIL, BuildConfig.DEV_CUSTOMER_PASSWORD)
+        }
+        binding.devAdminButton.setOnClickListener {
+            login(BuildConfig.DEV_ADMIN_EMAIL, BuildConfig.DEV_ADMIN_PASSWORD)
+        }
     }
 
     private fun showResetPasswordDialog() {
@@ -55,10 +75,10 @@ class LoginActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun login() {
-        val email = binding.emailInput.text.toString()
-        val password = binding.passwordInput.text.toString()
-
+    private fun login(
+        email: String = binding.emailInput.text.toString(),
+        password: String = binding.passwordInput.text.toString()
+    ) {
         lifecycleScope.launch {
             try {
                 val user = authRepository.login(email, password)

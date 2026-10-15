@@ -9,6 +9,8 @@
     <string name="action_login">Log in</string>
     <string name="action_register">Register</string>
     <string name="action_go_to_register">Don\'t have an account? Register</string>
+    <string name="dev_login_customer">Customer</string>
+    <string name="dev_login_admin">Admin</string>
     <string name="action_forgot_password">Forgot password?</string>
     <string name="title_reset_password">Reset password</string>
     <string name="message_reset_password">Enter your account email and we\'ll send you a link to reset your password.</string>

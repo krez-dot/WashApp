@@ -1,3 +1,11 @@
+import java.util.Properties
+
+// Dev quick-login accounts live in the git-ignored local.properties, never in the repo.
+val localProps = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+}
+fun devField(key: String) = "\"" + (localProps.getProperty(key) ?: "") + "\""
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -18,7 +26,17 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "DEV_CUSTOMER_EMAIL", devField("dev.customer.email"))
+            buildConfigField("String", "DEV_CUSTOMER_PASSWORD", devField("dev.customer.password"))
+            buildConfigField("String", "DEV_ADMIN_EMAIL", devField("dev.admin.email"))
+            buildConfigField("String", "DEV_ADMIN_PASSWORD", devField("dev.admin.password"))
+        }
         release {
+            buildConfigField("String", "DEV_CUSTOMER_EMAIL", "\"\"")
+            buildConfigField("String", "DEV_CUSTOMER_PASSWORD", "\"\"")
+            buildConfigField("String", "DEV_ADMIN_EMAIL", "\"\"")
+            buildConfigField("String", "DEV_ADMIN_PASSWORD", "\"\"")
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
@@ -35,6 +53,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 

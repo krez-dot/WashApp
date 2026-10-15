@@ -61,6 +61,34 @@
             android:text="@string/action_login"
             android:layout_marginTop="20dp" />
 
+        <LinearLayout
+            android:id="@+id/devLoginRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/devCustomerButton"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:text="@string/dev_login_customer" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/devAdminButton"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:text="@string/dev_login_admin" />
+
+        </LinearLayout>
+
         <TextView
             android:id="@+id/forgotPassword"
             android:layout_width="wrap_content"
