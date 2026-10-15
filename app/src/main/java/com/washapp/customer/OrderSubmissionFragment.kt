@@ -11,7 +11,6 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.washapp.R
-import com.washapp.data.model.FoldingConfig
 import com.washapp.data.model.Order
 import com.washapp.data.model.ServiceType
 import com.washapp.data.repository.AuthRepository
@@ -30,7 +29,6 @@ class OrderSubmissionFragment : Fragment() {
     private val authRepository = AuthRepository()
     private val orderRepository = OrderRepository()
     private val pricingRepository = PricingRepository()
-    private var foldingConfig: FoldingConfig? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,28 +50,7 @@ class OrderSubmissionFragment : Fragment() {
         })
         binding.coloredCheckbox.setOnCheckedChangeListener { _, _ -> updatePricePreview() }
         binding.foldingCheckbox.setOnCheckedChangeListener { _, _ -> updatePricePreview() }
-        loadFoldingOption()
     }
-
-    private fun loadFoldingOption() {
-        lifecycleScope.launch {
-            try {
-                val config = pricingRepository.getFolding() ?: return@launch
-                if (_binding == null) return@launch
-                foldingConfig = config
-                binding.foldingCheckbox.text = getString(R.string.format_add_folding, config.pricePerKg)
-                binding.foldingCheckbox.visibility = View.VISIBLE
-            } catch (e: Exception) {
-                // Folding stays hidden; ordering without it still works.
-            }
-        }
-    }
-
-    private fun foldingSelected(): Boolean =
-        foldingConfig != null && binding.foldingCheckbox.isChecked
-
-    private fun foldingCostPerKg(): Double =
-        if (foldingSelected()) foldingConfig?.pricePerKg ?: 0.0 else 0.0
 
     private fun updatePricePreview() {
         val loadSize = binding.loadSizeInput.text.toString().toDoubleOrNull()
@@ -85,11 +62,12 @@ class OrderSubmissionFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val pricing = pricingRepository.getPricing(serviceType)
-                binding.pricePreviewLabel.text =
-                    getString(
-                        R.string.format_estimated_cost,
-                        (pricing.pricePerKg + foldingCostPerKg()) * loadSize
-                    )
+                val base = getString(R.string.format_estimated_cost, pricing.pricePerKg * loadSize)
+                binding.pricePreviewLabel.text = if (binding.foldingCheckbox.isChecked) {
+                    base + getString(R.string.suffix_plus_folding)
+                } else {
+                    base
+                }
                 binding.pricePreviewLabel.visibility = View.VISIBLE
             } catch (e: Exception) {
                 binding.pricePreviewLabel.visibility = View.GONE
@@ -119,13 +97,11 @@ class OrderSubmissionFragment : Fragment() {
                     customerId = customerId,
                     serviceType = serviceType,
                     loadSizeKg = loadSize,
-                    cost = (pricing.pricePerKg + foldingCostPerKg()) * loadSize,
+                    cost = pricing.pricePerKg * loadSize,
                     queuePosition = queuePosition,
-                    folding = foldingSelected()
+                    folding = binding.foldingCheckbox.isChecked
                 )
-                order = TimeEstimator.estimate(
-                    order, pricing, queuePosition, averageStageMinutes = 15, folding = foldingConfig
-                )
+                order = TimeEstimator.estimate(order, queuePosition, averageStageMinutes = 15)
                 orderRepository.submitOrder(order)
                 binding.loadSizeInput.text?.clear()
                 binding.coloredCheckbox.isChecked = false
@@ -141,16 +117,15 @@ class OrderSubmissionFragment : Fragment() {
 
     private fun showConfirmation(order: Order) {
         if (_binding == null) return
+        val summary = getString(
+            R.string.message_order_confirmed,
+            order.queuePosition,
+            order.estimatedCompletionMinutes,
+            order.cost
+        )
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.title_order_confirmed)
-            .setMessage(
-                getString(
-                    R.string.message_order_confirmed,
-                    order.queuePosition,
-                    order.estimatedCompletionMinutes,
-                    order.cost
-                )
-            )
+            .setMessage(if (order.folding) summary + getString(R.string.message_folding_price_later) else summary)
             .setPositiveButton(R.string.action_ok, null)
             .show()
     }

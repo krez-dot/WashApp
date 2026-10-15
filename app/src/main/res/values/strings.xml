@@ -56,14 +56,15 @@
     <string name="title_service_non_colored">Non-Colored</string>
     <string name="title_service_colored">Colored</string>
     <string name="hint_price_per_kg">Price per kg (₱)</string>
-    <string name="hint_wash_minutes_per_kg">Wash minutes per kg</string>
-    <string name="hint_dry_minutes_per_kg">Dry minutes per kg</string>
     <string name="action_save">Save</string>
-    <string name="title_service_folding">Folding (add-on)</string>
-    <string name="hint_fold_minutes_per_kg">Fold minutes per kg</string>
-    <string name="format_add_folding">Add folding (+₱%.2f/kg)</string>
+    <string name="hint_add_folding">Add folding (price set by the shop)</string>
+    <string name="suffix_plus_folding">" + folding"</string>
+    <string name="message_folding_price_later">"\n+ Folding: the shop will set this price."</string>
+    <string name="label_cost_plus_folding">%1$s + folding (shop sets price)</string>
+    <string name="title_folding_price">Set the folding price</string>
+    <string name="hint_folding_price">Folding price (₱)</string>
+    <string name="message_enter_folding_price">Enter a valid folding price</string>
     <string name="label_with_folding">with folding</string>
-    <string name="message_folding_saved">Folding rates saved. Customers can now add folding.</string>
     <string name="notification_stage_folding">Your laundry is now being folded.</string>
 
     <string name="title_reports">Reports</string>

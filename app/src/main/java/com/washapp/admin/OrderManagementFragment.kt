@@ -6,16 +6,20 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.washapp.R
 import com.washapp.data.model.Order
 import com.washapp.data.model.ServiceStage
 import com.washapp.data.repository.AuthRepository
 import com.washapp.data.repository.MachineRepository
 import com.washapp.data.repository.OrderRepository
 import com.washapp.data.scheduling.MachineScheduler
+import com.washapp.databinding.DialogFoldingPriceBinding
 import com.washapp.databinding.FragmentOrderManagementBinding
 import kotlinx.coroutines.launch
 
@@ -73,12 +77,15 @@ class OrderManagementFragment : Fragment() {
 
     private fun advanceStage(order: Order) {
         val next = order.stage.next(order.folding) ?: return
+        if (next == ServiceStage.FOLDING) {
+            askFoldingPrice(order)
+            return
+        }
 
         lifecycleScope.launch {
             try {
                 when (next) {
                     ServiceStage.WASHING -> startWashing(order, next)
-                    ServiceStage.FOLDING -> startFolding(order, next)
                     ServiceStage.COMPLETED -> completeOrder(order, next)
                     else -> {
                         orderRepository.updateStage(order.orderId, next.name, order.queuePosition)
@@ -107,14 +114,39 @@ class OrderManagementFragment : Fragment() {
         replaceOrder(order.copy(stage = next, assignedMachineId = machine.machineId))
     }
 
-    private suspend fun startFolding(order: Order, next: ServiceStage) {
-        // Folding is done by hand, so the machine is free as soon as drying ends. Clearing the
-        // id matters: completeOrder would otherwise release a machine another order now holds.
-        if (order.assignedMachineId.isNotEmpty()) {
-            machineRepository.releaseMachine(order.assignedMachineId)
+    /** The owner decides the fold price per order, so it is asked for when folding begins. */
+    private fun askFoldingPrice(order: Order) {
+        val dialogBinding = DialogFoldingPriceBinding.inflate(LayoutInflater.from(requireContext()))
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.title_folding_price)
+            .setView(dialogBinding.root)
+            .setPositiveButton(R.string.action_save, null)
+            .setNegativeButton(R.string.action_cancel, null)
+            .create()
+        dialog.show()
+
+        // Set after show() so an invalid price keeps the dialog open.
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val price = dialogBinding.foldingPriceInput.text.toString().toDoubleOrNull()
+            if (price == null || price < 0) {
+                dialogBinding.foldingPriceLayout.error = getString(R.string.message_enter_folding_price)
+                return@setOnClickListener
+            }
+            dialog.dismiss()
+            lifecycleScope.launch {
+                try {
+                    // Folding is done by hand, so the machine is free as soon as drying ends.
+                    // startFolding clears the id so completeOrder can't free a machine another
+                    // order now holds.
+                    if (order.assignedMachineId.isNotEmpty()) {
+                        machineRepository.releaseMachine(order.assignedMachineId)
+                    }
+                    replaceOrder(orderRepository.startFolding(order, price))
+                } catch (e: Exception) {
+                    Snackbar.make(binding.root, e.message ?: "Couldn't start folding", Snackbar.LENGTH_LONG).show()
+                }
+            }
         }
-        orderRepository.updateStage(order.orderId, next.name, order.queuePosition, assignedMachineId = "")
-        replaceOrder(order.copy(stage = next, assignedMachineId = ""))
     }
 
     private suspend fun completeOrder(order: Order, next: ServiceStage) {

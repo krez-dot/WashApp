@@ -7,6 +7,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Source
 import com.washapp.data.model.Order
+import com.washapp.data.model.ServiceStage
 import com.washapp.data.scheduling.QueueOptimizer
 import kotlinx.coroutines.tasks.await
 
@@ -23,6 +24,29 @@ class OrderRepository(
         orders.document(docRef.id).set(finalOrder).await()
         pushStatus(docRef.id, finalOrder.stage.name, finalOrder.queuePosition)
         return docRef.id
+    }
+
+    suspend fun getOrder(orderId: String): Order? =
+        orders.document(orderId).get(Source.SERVER).await().toObject(Order::class.java)
+
+    /** Moves to FOLDING, frees the machine, and adds the owner's folding price to the order total. */
+    suspend fun startFolding(order: Order, foldingPrice: Double): Order {
+        val updated = order.copy(
+            stage = ServiceStage.FOLDING,
+            assignedMachineId = "",
+            foldingPrice = foldingPrice,
+            cost = order.cost - order.foldingPrice + foldingPrice
+        )
+        orders.document(order.orderId).update(
+            mapOf(
+                "stage" to updated.stage.name,
+                "assignedMachineId" to "",
+                "foldingPrice" to updated.foldingPrice,
+                "cost" to updated.cost
+            )
+        ).await()
+        pushStatus(order.orderId, updated.stage.name, order.queuePosition)
+        return updated
     }
 
     suspend fun getAllOrders(): List<Order> {

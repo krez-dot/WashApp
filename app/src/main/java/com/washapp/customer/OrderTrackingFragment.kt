@@ -118,6 +118,23 @@ class OrderTrackingFragment : Fragment() {
         val updated = current.copy(stage = stageEnum, queuePosition = queuePosition)
         liveOrders[orderId] = updated
         adapter.updateItem(updated)
+
+        if (stageEnum == ServiceStage.FOLDING && current.folding) {
+            // The owner sets the fold price as folding starts, which changes the order total.
+            viewLifecycleOwner.lifecycleScope.launch {
+                try {
+                    val refreshed = orderRepository.getOrder(orderId) ?: return@launch
+                    if (_binding == null || !liveOrders.containsKey(orderId)) return@launch
+                    val merged = liveOrders.getValue(orderId).copy(
+                        cost = refreshed.cost, foldingPrice = refreshed.foldingPrice
+                    )
+                    liveOrders[orderId] = merged
+                    adapter.updateItem(merged)
+                } catch (e: Exception) {
+                    // The card keeps the previous total until the next reload.
+                }
+            }
+        }
     }
 
     private fun renderOrders() {

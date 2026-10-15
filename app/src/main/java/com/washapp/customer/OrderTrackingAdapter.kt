@@ -4,6 +4,7 @@ import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.washapp.R
 import com.washapp.data.model.Order
 import com.washapp.data.model.ServiceStage
 import com.washapp.data.model.ServiceType
@@ -64,7 +65,12 @@ class OrderTrackingAdapter(
             binding.queuePositionLabel.text = "Queue position: ${order.queuePosition}"
             binding.estimatedCompletionLabel.text =
                 "Estimated completion: ${order.estimatedCompletionMinutes} min"
-            binding.costLabel.text = "₱${order.cost}"
+            val cost = "₱${order.cost}"
+            binding.costLabel.text = if (order.folding && order.foldingPrice == 0.0) {
+                context.getString(R.string.label_cost_plus_folding, cost)
+            } else {
+                cost
+            }
 
             if (order.stage == ServiceStage.QUEUED) {
                 binding.cancelOrderButton.visibility = android.view.View.VISIBLE

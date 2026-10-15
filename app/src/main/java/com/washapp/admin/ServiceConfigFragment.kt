@@ -4,11 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
-import com.washapp.R
-import com.washapp.data.model.FoldingConfig
 import com.washapp.data.model.PricingConfig
 import com.washapp.data.model.ServiceType
 import com.washapp.data.repository.PricingRepository
@@ -35,42 +34,13 @@ class ServiceConfigFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.saveNonColoredButton.setOnClickListener {
-            save(
-                ServiceType.NON_COLORED,
-                binding.nonColoredPriceInput,
-                binding.nonColoredWashInput,
-                binding.nonColoredDryInput
-            )
+            save(ServiceType.NON_COLORED, binding.nonColoredPriceInput)
         }
         binding.saveColoredButton.setOnClickListener {
-            save(
-                ServiceType.COLORED,
-                binding.coloredPriceInput,
-                binding.coloredWashInput,
-                binding.coloredDryInput
-            )
+            save(ServiceType.COLORED, binding.coloredPriceInput)
         }
-
-        binding.saveFoldingButton.setOnClickListener { saveFolding() }
 
         loadPricing()
-    }
-
-    private fun saveFolding() {
-        val price = binding.foldingPriceInput.text.toString().toDoubleOrNull()
-        val minutes = binding.foldingMinutesInput.text.toString().toIntOrNull()
-        if (price == null || minutes == null) {
-            Snackbar.make(binding.root, "Enter valid numbers for price and fold minutes", Snackbar.LENGTH_SHORT).show()
-            return
-        }
-        lifecycleScope.launch {
-            try {
-                pricingRepository.saveFolding(FoldingConfig(pricePerKg = price, foldMinutesPerKg = minutes))
-                Snackbar.make(binding.root, R.string.message_folding_saved, Snackbar.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                Snackbar.make(binding.root, e.message ?: "Couldn't save folding", Snackbar.LENGTH_LONG).show()
-            }
-        }
     }
 
     private fun loadPricing() {
@@ -78,48 +48,25 @@ class ServiceConfigFragment : Fragment() {
             try {
                 val nonColored = pricingRepository.getPricing(ServiceType.NON_COLORED)
                 binding.nonColoredPriceInput.setText(nonColored.pricePerKg.toString())
-                binding.nonColoredWashInput.setText(nonColored.washMinutesPerKg.toString())
-                binding.nonColoredDryInput.setText(nonColored.dryMinutesPerKg.toString())
 
                 val colored = pricingRepository.getPricing(ServiceType.COLORED)
                 binding.coloredPriceInput.setText(colored.pricePerKg.toString())
-                binding.coloredWashInput.setText(colored.washMinutesPerKg.toString())
-                binding.coloredDryInput.setText(colored.dryMinutesPerKg.toString())
-
-                pricingRepository.getFolding()?.let {
-                    binding.foldingPriceInput.setText(it.pricePerKg.toString())
-                    binding.foldingMinutesInput.setText(it.foldMinutesPerKg.toString())
-                }
             } catch (e: Exception) {
                 Snackbar.make(binding.root, e.message ?: "Couldn't load pricing", Snackbar.LENGTH_LONG).show()
             }
         }
     }
 
-    private fun save(
-        serviceType: ServiceType,
-        priceInput: android.widget.EditText,
-        washInput: android.widget.EditText,
-        dryInput: android.widget.EditText
-    ) {
+    private fun save(serviceType: ServiceType, priceInput: EditText) {
         val price = priceInput.text.toString().toDoubleOrNull()
-        val wash = washInput.text.toString().toIntOrNull()
-        val dry = dryInput.text.toString().toIntOrNull()
-        if (price == null || wash == null || dry == null) {
-            Snackbar.make(binding.root, "Enter valid numbers for price, wash, and dry", Snackbar.LENGTH_SHORT).show()
+        if (price == null || price < 0) {
+            Snackbar.make(binding.root, "Enter a valid price", Snackbar.LENGTH_SHORT).show()
             return
         }
 
         lifecycleScope.launch {
             try {
-                pricingRepository.savePricing(
-                    PricingConfig(
-                        serviceType = serviceType,
-                        pricePerKg = price,
-                        washMinutesPerKg = wash,
-                        dryMinutesPerKg = dry
-                    )
-                )
+                pricingRepository.savePricing(PricingConfig(serviceType = serviceType, pricePerKg = price))
                 Snackbar.make(binding.root, "Saved", Snackbar.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 Snackbar.make(binding.root, e.message ?: "Couldn't save pricing", Snackbar.LENGTH_LONG).show()

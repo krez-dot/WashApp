@@ -18,6 +18,8 @@ data class Order(
     val estimatedWashMinutes: Int = 0,
     val estimatedDryMinutes: Int = 0,
     val folding: Boolean = false,
+    /** Set by the owner when folding starts; the order's cost excludes it until then. */
+    val foldingPrice: Double = 0.0,
     val estimatedFoldMinutes: Int = 0,
     val estimatedCompletionMinutes: Int = 0,
     val createdAt: Long = System.currentTimeMillis()
