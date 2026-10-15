@@ -50,6 +50,7 @@ class OrderSubmissionFragment : Fragment() {
         })
         binding.coloredCheckbox.setOnCheckedChangeListener { _, _ -> updatePricePreview() }
         binding.foldingCheckbox.setOnCheckedChangeListener { _, _ -> updatePricePreview() }
+        binding.priorityCheckbox.setOnCheckedChangeListener { _, _ -> updatePricePreview() }
     }
 
     private fun updatePricePreview() {
@@ -63,11 +64,10 @@ class OrderSubmissionFragment : Fragment() {
             try {
                 val pricing = pricingRepository.getPricing(serviceType)
                 val base = getString(R.string.format_estimated_cost, pricing.pricePerKg * loadSize)
-                binding.pricePreviewLabel.text = if (binding.foldingCheckbox.isChecked) {
-                    base + getString(R.string.suffix_plus_folding)
-                } else {
-                    base
-                }
+                var preview = base
+                if (binding.foldingCheckbox.isChecked) preview += getString(R.string.suffix_plus_folding)
+                if (binding.priorityCheckbox.isChecked) preview += getString(R.string.suffix_plus_priority)
+                binding.pricePreviewLabel.text = preview
                 binding.pricePreviewLabel.visibility = View.VISIBLE
             } catch (e: Exception) {
                 binding.pricePreviewLabel.visibility = View.GONE
@@ -99,7 +99,8 @@ class OrderSubmissionFragment : Fragment() {
                     loadSizeKg = loadSize,
                     cost = pricing.pricePerKg * loadSize,
                     queuePosition = queuePosition,
-                    folding = binding.foldingCheckbox.isChecked
+                    folding = binding.foldingCheckbox.isChecked,
+                    priorityRequested = binding.priorityCheckbox.isChecked
                 )
                 order = TimeEstimator.estimate(
                     order, queuePosition, averageStageMinutes = 15,
@@ -109,6 +110,7 @@ class OrderSubmissionFragment : Fragment() {
                 binding.loadSizeInput.text?.clear()
                 binding.coloredCheckbox.isChecked = false
                 binding.foldingCheckbox.isChecked = false
+                binding.priorityCheckbox.isChecked = false
                 binding.pricePreviewLabel.visibility = View.GONE
                 (activity as? CustomerActivity)?.refreshStatusNotifier()
                 showConfirmation(order)
@@ -128,7 +130,11 @@ class OrderSubmissionFragment : Fragment() {
         )
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.title_order_confirmed)
-            .setMessage(if (order.folding) summary + getString(R.string.message_folding_price_later) else summary)
+            .setMessage(
+                summary +
+                    (if (order.folding) getString(R.string.message_folding_price_later) else "") +
+                    (if (order.priorityRequested) getString(R.string.message_priority_price_later) else "")
+            )
             .setPositiveButton(R.string.action_ok, null)
             .show()
     }

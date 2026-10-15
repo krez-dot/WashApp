@@ -43,6 +43,14 @@
     <string name="action_move_down">Down</string>
     <string name="action_toggle_priority">Toggle priority</string>
     <string name="label_priority">PRIORITY</string>
+    <string name="label_priority_requested">PRIORITY REQUESTED</string>
+    <string name="hint_request_priority">Request priority (extra fee set by the shop)</string>
+    <string name="suffix_plus_priority">" + priority"</string>
+    <string name="message_priority_price_later">"\n+ Priority: the shop will confirm it and set the extra fee."</string>
+    <string name="label_cost_plus_priority">%1$s + priority fee (shop sets price)</string>
+    <string name="title_priority_price">Set the priority fee</string>
+    <string name="hint_priority_price">Additional fee (₱)</string>
+    <string name="message_enter_priority_price">Enter a valid fee</string>
     <string name="message_priority_set">Marked as a priority order</string>
     <string name="message_priority_cleared">Priority removed</string>
 

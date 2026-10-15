@@ -119,8 +119,10 @@ class OrderTrackingFragment : Fragment() {
         liveOrders[orderId] = updated
         adapter.updateItem(updated)
 
-        if (stageEnum == ServiceStage.FOLDING && current.folding) {
-            // The owner sets the fold price as folding starts, which changes the order total.
+        val foldingJustStarted = stageEnum == ServiceStage.FOLDING && current.folding
+        if (foldingJustStarted || current.priorityRequested) {
+            // The owner sets the fold price as folding starts and the priority fee when approving
+            // a priority request; both change the order total.
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     val refreshed = orderRepository.getOrder(orderId) ?: return@launch
@@ -128,6 +130,8 @@ class OrderTrackingFragment : Fragment() {
                     val merged = liveOrders.getValue(orderId).copy(
                         cost = refreshed.cost,
                         foldingPrice = refreshed.foldingPrice,
+                        priority = refreshed.priority,
+                        priorityPrice = refreshed.priorityPrice,
                         estimatedFoldMinutes = refreshed.estimatedFoldMinutes,
                         estimatedCompletionMinutes = refreshed.estimatedCompletionMinutes
                     )

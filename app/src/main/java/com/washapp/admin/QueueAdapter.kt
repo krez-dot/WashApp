@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.washapp.R
 import com.washapp.data.model.Order
 import com.washapp.databinding.ItemQueueOrderBinding
 import com.washapp.util.orderServiceLabel
@@ -54,7 +55,11 @@ class QueueAdapter(
             binding.queueOrderDetails.text =
                 "${context.orderServiceLabel(order)} · ${order.loadSizeKg} kg"
 
-            binding.priorityBadge.visibility = if (order.priority) View.VISIBLE else View.GONE
+            val showBadge = order.priority || order.priorityRequested
+            binding.priorityBadge.visibility = if (showBadge) View.VISIBLE else View.GONE
+            binding.priorityBadge.setText(
+                if (order.priority) R.string.label_priority else R.string.label_priority_requested
+            )
             binding.togglePriorityButton.alpha = if (order.priority) 1f else 0.3f
             binding.togglePriorityButton.setOnClickListener { onTogglePriority(order) }
 

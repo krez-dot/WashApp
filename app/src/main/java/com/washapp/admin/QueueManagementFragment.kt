@@ -4,13 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.washapp.R
 import com.washapp.data.model.Order
 import com.washapp.data.repository.OrderRepository
+import com.washapp.databinding.DialogPriorityPriceBinding
 import com.washapp.databinding.FragmentQueueManagementBinding
 import kotlinx.coroutines.launch
 
@@ -66,12 +69,42 @@ class QueueManagementFragment : Fragment() {
     }
 
     private fun togglePriority(order: Order) {
-        val newPriority = !order.priority
+        if (order.priority) {
+            applyPriority(order, false, 0.0)
+        } else {
+            askPriorityFee(order)
+        }
+    }
+
+    /** The owner decides the additional fee per order, so it is asked for when granting priority. */
+    private fun askPriorityFee(order: Order) {
+        val dialogBinding = DialogPriorityPriceBinding.inflate(LayoutInflater.from(requireContext()))
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.title_priority_price)
+            .setView(dialogBinding.root)
+            .setPositiveButton(R.string.action_save, null)
+            .setNegativeButton(R.string.action_cancel, null)
+            .create()
+        dialog.show()
+
+        // Set after show() so an invalid fee keeps the dialog open.
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val fee = dialogBinding.priorityPriceInput.text.toString().toDoubleOrNull()
+            if (fee == null || fee < 0) {
+                dialogBinding.priorityPriceLayout.error = getString(R.string.message_enter_priority_price)
+                return@setOnClickListener
+            }
+            dialog.dismiss()
+            applyPriority(order, true, fee)
+        }
+    }
+
+    private fun applyPriority(order: Order, newPriority: Boolean, fee: Double) {
         lifecycleScope.launch {
             try {
                 // setPriority renumbers every position, so take the reordered queue it
                 // returns rather than re-querying and risking a stale read.
-                adapter.submitList(orderRepository.setPriority(order.orderId, newPriority))
+                adapter.submitList(orderRepository.setPriority(order.orderId, newPriority, fee))
                 val message =
                     if (newPriority) R.string.message_priority_set else R.string.message_priority_cleared
                 Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()

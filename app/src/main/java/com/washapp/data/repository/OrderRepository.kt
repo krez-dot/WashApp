@@ -103,13 +103,19 @@ class OrderRepository(
 
     /**
      * Flips an order's rush flag and renumbers the whole active queue so positions stay
-     * dense and priority-first. Returns the reordered queue.
+     * dense and priority-first. Granting priority also records the owner's additional fee in the
+     * order total; removing it takes the fee back out. Returns the reordered queue.
      */
-    suspend fun setPriority(orderId: String, priority: Boolean): List<Order> {
-        orders.document(orderId).update("priority", priority).await()
+    suspend fun setPriority(orderId: String, priority: Boolean, fee: Double = 0.0): List<Order> {
+        val target = getActiveQueue().first { it.orderId == orderId }
+        val newFee = if (priority) fee else 0.0
+        val newCost = target.cost - target.priorityPrice + newFee
+        orders.document(orderId).update(
+            mapOf("priority" to priority, "priorityPrice" to newFee, "cost" to newCost)
+        ).await()
 
         val updated = getActiveQueue().map {
-            if (it.orderId == orderId) it.copy(priority = priority) else it
+            if (it.orderId == orderId) it.copy(priority = priority, priorityPrice = newFee, cost = newCost) else it
         }
         val renumbered = QueueOptimizer.renumber(updated)
 

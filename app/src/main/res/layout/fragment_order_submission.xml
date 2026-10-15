@@ -58,6 +58,12 @@
                     android:layout_height="wrap_content"
                     android:text="@string/hint_add_folding" />
 
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/priorityCheckbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hint_request_priority" />
+
                 <TextView
                     android:id="@+id/pricePreviewLabel"
                     android:layout_width="match_parent"
