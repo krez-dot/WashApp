@@ -19,7 +19,6 @@ import com.washapp.data.repository.AuthRepository
 import com.washapp.data.repository.MachineRepository
 import com.washapp.data.repository.OrderRepository
 import com.washapp.data.scheduling.MachineScheduler
-import com.washapp.databinding.DialogFoldingPriceBinding
 import com.washapp.databinding.FragmentOrderManagementBinding
 import kotlinx.coroutines.launch
 
@@ -77,15 +76,12 @@ class OrderManagementFragment : Fragment() {
 
     private fun advanceStage(order: Order) {
         val next = order.stage.next(order.folding) ?: return
-        if (next == ServiceStage.FOLDING) {
-            askFoldingPrice(order)
-            return
-        }
 
         lifecycleScope.launch {
             try {
                 when (next) {
                     ServiceStage.WASHING -> startWashing(order, next)
+                    ServiceStage.FOLDING -> startFolding(order)
                     ServiceStage.COMPLETED -> completeOrder(order, next)
                     else -> {
                         orderRepository.updateStage(order.orderId, next.name, order.queuePosition)
@@ -114,45 +110,13 @@ class OrderManagementFragment : Fragment() {
         replaceOrder(order.copy(stage = next, assignedMachineId = machine.machineId))
     }
 
-    /** The owner decides the fold time and price per order, so both are asked for when folding begins. */
-    private fun askFoldingPrice(order: Order) {
-        val dialogBinding = DialogFoldingPriceBinding.inflate(LayoutInflater.from(requireContext()))
-        val dialog = MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.title_folding_price)
-            .setView(dialogBinding.root)
-            .setPositiveButton(R.string.action_save, null)
-            .setNegativeButton(R.string.action_cancel, null)
-            .create()
-        dialog.show()
-
-        // Set after show() so an invalid price keeps the dialog open.
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            dialogBinding.foldingPriceLayout.error = null
-            dialogBinding.foldingMinutesLayout.error = null
-            val price = dialogBinding.foldingPriceInput.text.toString().toDoubleOrNull()
-            val minutes = dialogBinding.foldingMinutesInput.text.toString().toIntOrNull()
-            if (price == null || price < 0) {
-                dialogBinding.foldingPriceLayout.error = getString(R.string.message_enter_folding_price)
-            }
-            if (minutes == null || minutes <= 0) {
-                dialogBinding.foldingMinutesLayout.error = getString(R.string.message_enter_folding_minutes)
-            }
-            if (price == null || price < 0 || minutes == null || minutes <= 0) return@setOnClickListener
-            dialog.dismiss()
-            lifecycleScope.launch {
-                try {
-                    // Folding is done by hand, so the machine is free as soon as drying ends.
-                    // startFolding clears the id so completeOrder can't free a machine another
-                    // order now holds.
-                    if (order.assignedMachineId.isNotEmpty()) {
-                        machineRepository.releaseMachine(order.assignedMachineId)
-                    }
-                    replaceOrder(orderRepository.startFolding(order, price, minutes))
-                } catch (e: Exception) {
-                    Snackbar.make(binding.root, e.message ?: "Couldn't start folding", Snackbar.LENGTH_LONG).show()
-                }
-            }
+    private suspend fun startFolding(order: Order) {
+        // Folding is done by hand, so the machine is free as soon as drying ends. startFolding
+        // clears the id so completeOrder can't free a machine another order now holds.
+        if (order.assignedMachineId.isNotEmpty()) {
+            machineRepository.releaseMachine(order.assignedMachineId)
         }
+        replaceOrder(orderRepository.startFolding(order))
     }
 
     private suspend fun completeOrder(order: Order, next: ServiceStage) {

@@ -66,14 +66,7 @@ class OrderTrackingAdapter(
             binding.estimatedCompletionLabel.text =
                 "Estimated completion: ${order.estimatedCompletionMinutes} min"
             val cost = "₱${order.cost}"
-            var costText = cost
-            if (order.folding && order.foldingPrice == 0.0) {
-                costText = context.getString(R.string.label_cost_plus_folding, costText)
-            }
-            if (order.priorityRequested && !order.priority) {
-                costText = context.getString(R.string.label_cost_plus_priority, costText)
-            }
-            binding.costLabel.text = costText
+            binding.costLabel.text = cost
 
             if (order.stage == ServiceStage.QUEUED) {
                 binding.cancelOrderButton.visibility = android.view.View.VISIBLE

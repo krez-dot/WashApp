@@ -46,13 +46,7 @@
     <string name="action_toggle_priority">Toggle priority</string>
     <string name="label_priority">PRIORITY</string>
     <string name="label_priority_requested">PRIORITY REQUESTED</string>
-    <string name="hint_request_priority">Request priority (extra fee set by the shop)</string>
-    <string name="suffix_plus_priority">" + priority"</string>
-    <string name="message_priority_price_later">"\n+ Priority: the shop will confirm it and set the extra fee."</string>
-    <string name="label_cost_plus_priority">%1$s + priority fee (shop sets price)</string>
-    <string name="title_priority_price">Set the priority fee</string>
-    <string name="hint_priority_price">Additional fee (₱)</string>
-    <string name="message_enter_priority_price">Enter a valid fee</string>
+    <string name="hint_request_priority">Request priority</string>
     <string name="message_priority_set">Marked as a priority order</string>
     <string name="message_priority_cleared">Priority removed</string>
 
@@ -69,15 +63,14 @@
     <string name="hint_wash_minutes">Wash time (minutes per load)</string>
     <string name="hint_dry_minutes">Dry time (minutes per load)</string>
     <string name="action_save">Save</string>
-    <string name="hint_add_folding">Add folding (price set by the shop)</string>
-    <string name="suffix_plus_folding">" + folding"</string>
-    <string name="message_folding_price_later">"\n+ Folding: the shop will set this price."</string>
-    <string name="label_cost_plus_folding">%1$s + folding (shop sets price)</string>
-    <string name="title_folding_price">Set folding time and price</string>
+    <string name="hint_add_folding">Add folding</string>
+    <string name="format_add_folding">Add folding (+₱%.2f)</string>
+    <string name="format_request_priority">Request priority (+₱%.2f)</string>
+    <string name="message_priority_pending">"\nPriority: waiting for the shop to approve it."</string>
+    <string name="title_service_add_ons">Add-ons</string>
     <string name="hint_folding_price">Folding price (₱)</string>
     <string name="hint_folding_minutes">Folding time (minutes)</string>
-    <string name="message_enter_folding_minutes">Enter the folding time in minutes</string>
-    <string name="message_enter_folding_price">Enter a valid folding price</string>
+    <string name="hint_priority_fee">Priority fee (₱)</string>
     <string name="label_with_folding">with folding</string>
     <string name="notification_stage_folding">Your laundry is now being folded.</string>
 

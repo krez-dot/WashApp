@@ -42,6 +42,7 @@ class OrderSubmissionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.submitOrderButton.setOnClickListener { submitOrder() }
+        showAddOnPrices()
 
         binding.loadSizeInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -51,6 +52,18 @@ class OrderSubmissionFragment : Fragment() {
         binding.coloredCheckbox.setOnCheckedChangeListener { _, _ -> updatePricePreview() }
         binding.foldingCheckbox.setOnCheckedChangeListener { _, _ -> updatePricePreview() }
         binding.priorityCheckbox.setOnCheckedChangeListener { _, _ -> updatePricePreview() }
+    }
+
+    private fun showAddOnPrices() {
+        lifecycleScope.launch {
+            try {
+                val addOns = pricingRepository.getAddOns()
+                binding.foldingCheckbox.text = getString(R.string.format_add_folding, addOns.foldingPrice)
+                binding.priorityCheckbox.text = getString(R.string.format_request_priority, addOns.priorityFee)
+            } catch (e: Exception) {
+                // The checkboxes keep their plain labels.
+            }
+        }
     }
 
     private fun updatePricePreview() {
@@ -63,11 +76,11 @@ class OrderSubmissionFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val pricing = pricingRepository.getPricing(serviceType)
-                val base = getString(R.string.format_estimated_cost, pricing.pricePerKg * loadSize)
-                var preview = base
-                if (binding.foldingCheckbox.isChecked) preview += getString(R.string.suffix_plus_folding)
-                if (binding.priorityCheckbox.isChecked) preview += getString(R.string.suffix_plus_priority)
-                binding.pricePreviewLabel.text = preview
+                val addOns = pricingRepository.getAddOns()
+                var total = pricing.pricePerKg * loadSize
+                if (binding.foldingCheckbox.isChecked) total += addOns.foldingPrice
+                if (binding.priorityCheckbox.isChecked) total += addOns.priorityFee
+                binding.pricePreviewLabel.text = getString(R.string.format_estimated_cost, total)
                 binding.pricePreviewLabel.visibility = View.VISIBLE
             } catch (e: Exception) {
                 binding.pricePreviewLabel.visibility = View.GONE
@@ -90,21 +103,28 @@ class OrderSubmissionFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val pricing = pricingRepository.getPricing(serviceType)
+                val addOns = pricingRepository.getAddOns()
                 val currentQueue = orderRepository.getActiveQueue()
                 val queuePosition = QueueOptimizer.assignQueuePosition(currentQueue, Order())
+
+                val folding = binding.foldingCheckbox.isChecked
+                val priorityRequested = binding.priorityCheckbox.isChecked
 
                 var order = Order(
                     customerId = customerId,
                     serviceType = serviceType,
                     loadSizeKg = loadSize,
-                    cost = pricing.pricePerKg * loadSize,
                     queuePosition = queuePosition,
-                    folding = binding.foldingCheckbox.isChecked,
-                    priorityRequested = binding.priorityCheckbox.isChecked
+                    folding = folding,
+                    foldingPrice = if (folding) addOns.foldingPrice else 0.0,
+                    priorityRequested = priorityRequested,
+                    priorityPrice = if (priorityRequested) addOns.priorityFee else 0.0
                 )
+                order = order.copy(cost = pricing.pricePerKg * loadSize + order.foldingPrice + order.priorityPrice)
                 order = TimeEstimator.estimate(
                     order, queuePosition, averageStageMinutes = 15,
-                    washMinutes = pricing.washMinutes, dryMinutes = pricing.dryMinutes
+                    washMinutes = pricing.washMinutes, dryMinutes = pricing.dryMinutes,
+                    foldMinutes = addOns.foldingMinutes
                 )
                 orderRepository.submitOrder(order)
                 binding.loadSizeInput.text?.clear()
@@ -131,9 +151,7 @@ class OrderSubmissionFragment : Fragment() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.title_order_confirmed)
             .setMessage(
-                summary +
-                    (if (order.folding) getString(R.string.message_folding_price_later) else "") +
-                    (if (order.priorityRequested) getString(R.string.message_priority_price_later) else "")
+                if (order.priorityRequested) summary + getString(R.string.message_priority_pending) else summary
             )
             .setPositiveButton(R.string.action_ok, null)
             .show()

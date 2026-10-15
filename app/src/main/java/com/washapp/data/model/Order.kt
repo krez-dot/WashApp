@@ -13,16 +13,16 @@ data class Order(
      * `priority` anyway, which previously caused a field-name mismatch on Machine.
      */
     val priority: Boolean = false,
-    /** The customer asked for priority; it only takes effect once the owner approves and prices it. */
+    /** The customer asked (and agreed to pay) for priority; it takes effect once the owner approves it. */
     val priorityRequested: Boolean = false,
-    /** Additional fee the owner sets when granting priority; included in `cost`. */
+    /** Priority fee charged at checkout from the add-on settings; included in `cost`. */
     val priorityPrice: Double = 0.0,
     val assignedMachineId: String = "",
     val stage: ServiceStage = ServiceStage.QUEUED,
     val estimatedWashMinutes: Int = 0,
     val estimatedDryMinutes: Int = 0,
     val folding: Boolean = false,
-    /** Set by the owner when folding starts; the order's cost excludes it until then. */
+    /** Folding fee charged at checkout from the add-on settings; included in `cost`. */
     val foldingPrice: Double = 0.0,
     val estimatedFoldMinutes: Int = 0,
     val estimatedCompletionMinutes: Int = 0,

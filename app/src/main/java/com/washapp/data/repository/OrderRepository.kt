@@ -29,29 +29,11 @@ class OrderRepository(
     suspend fun getOrder(orderId: String): Order? =
         orders.document(orderId).get(Source.SERVER).await().toObject(Order::class.java)
 
-    /**
-     * Moves to FOLDING, frees the machine, and records the owner's folding price and time:
-     * the price joins the order total and the time replaces the default fold estimate.
-     */
-    suspend fun startFolding(order: Order, foldingPrice: Double, foldMinutes: Int): Order {
-        val updated = order.copy(
-            stage = ServiceStage.FOLDING,
-            assignedMachineId = "",
-            foldingPrice = foldingPrice,
-            cost = order.cost - order.foldingPrice + foldingPrice,
-            estimatedFoldMinutes = foldMinutes,
-            estimatedCompletionMinutes =
-                order.estimatedCompletionMinutes - order.estimatedFoldMinutes + foldMinutes
-        )
+    /** Moves to FOLDING and frees the machine; the fold fee was already charged at checkout. */
+    suspend fun startFolding(order: Order): Order {
+        val updated = order.copy(stage = ServiceStage.FOLDING, assignedMachineId = "")
         orders.document(order.orderId).update(
-            mapOf(
-                "stage" to updated.stage.name,
-                "assignedMachineId" to "",
-                "foldingPrice" to updated.foldingPrice,
-                "cost" to updated.cost,
-                "estimatedFoldMinutes" to updated.estimatedFoldMinutes,
-                "estimatedCompletionMinutes" to updated.estimatedCompletionMinutes
-            )
+            mapOf("stage" to updated.stage.name, "assignedMachineId" to "")
         ).await()
         pushStatus(order.orderId, updated.stage.name, order.queuePosition)
         return updated
@@ -103,19 +85,13 @@ class OrderRepository(
 
     /**
      * Flips an order's rush flag and renumbers the whole active queue so positions stay
-     * dense and priority-first. Granting priority also records the owner's additional fee in the
-     * order total; removing it takes the fee back out. Returns the reordered queue.
+     * dense and priority-first. Returns the reordered queue.
      */
-    suspend fun setPriority(orderId: String, priority: Boolean, fee: Double = 0.0): List<Order> {
-        val target = getActiveQueue().first { it.orderId == orderId }
-        val newFee = if (priority) fee else 0.0
-        val newCost = target.cost - target.priorityPrice + newFee
-        orders.document(orderId).update(
-            mapOf("priority" to priority, "priorityPrice" to newFee, "cost" to newCost)
-        ).await()
+    suspend fun setPriority(orderId: String, priority: Boolean): List<Order> {
+        orders.document(orderId).update("priority", priority).await()
 
         val updated = getActiveQueue().map {
-            if (it.orderId == orderId) it.copy(priority = priority, priorityPrice = newFee, cost = newCost) else it
+            if (it.orderId == orderId) it.copy(priority = priority) else it
         }
         val renumbered = QueueOptimizer.renumber(updated)
 

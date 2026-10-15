@@ -119,22 +119,13 @@ class OrderTrackingFragment : Fragment() {
         liveOrders[orderId] = updated
         adapter.updateItem(updated)
 
-        val foldingJustStarted = stageEnum == ServiceStage.FOLDING && current.folding
-        if (foldingJustStarted || current.priorityRequested) {
-            // The owner sets the fold price as folding starts and the priority fee when approving
-            // a priority request; both change the order total.
+        if (current.priorityRequested && !current.priority) {
+            // Status updates don't carry the priority flag, so check whether the owner approved it.
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     val refreshed = orderRepository.getOrder(orderId) ?: return@launch
                     if (_binding == null || !liveOrders.containsKey(orderId)) return@launch
-                    val merged = liveOrders.getValue(orderId).copy(
-                        cost = refreshed.cost,
-                        foldingPrice = refreshed.foldingPrice,
-                        priority = refreshed.priority,
-                        priorityPrice = refreshed.priorityPrice,
-                        estimatedFoldMinutes = refreshed.estimatedFoldMinutes,
-                        estimatedCompletionMinutes = refreshed.estimatedCompletionMinutes
-                    )
+                    val merged = liveOrders.getValue(orderId).copy(priority = refreshed.priority)
                     liveOrders[orderId] = merged
                     adapter.updateItem(merged)
                 } catch (e: Exception) {

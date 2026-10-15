@@ -8,6 +8,7 @@ import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
+import com.washapp.data.model.AddOnConfig
 import com.washapp.data.model.PricingConfig
 import com.washapp.data.model.ServiceType
 import com.washapp.data.repository.PricingRepository
@@ -40,6 +41,8 @@ class ServiceConfigFragment : Fragment() {
             save(ServiceType.COLORED, binding.coloredPriceInput, binding.coloredWashInput, binding.coloredDryInput)
         }
 
+        binding.saveAddOnsButton.setOnClickListener { saveAddOns() }
+
         loadPricing()
     }
 
@@ -55,6 +58,11 @@ class ServiceConfigFragment : Fragment() {
                 binding.coloredPriceInput.setText(colored.pricePerKg.toString())
                 binding.coloredWashInput.setText(colored.washMinutes.toString())
                 binding.coloredDryInput.setText(colored.dryMinutes.toString())
+
+                val addOns = pricingRepository.getAddOns()
+                binding.foldingPriceSettingInput.setText(addOns.foldingPrice.toString())
+                binding.foldingMinutesSettingInput.setText(addOns.foldingMinutes.toString())
+                binding.priorityFeeInput.setText(addOns.priorityFee.toString())
             } catch (e: Exception) {
                 Snackbar.make(binding.root, e.message ?: "Couldn't load pricing", Snackbar.LENGTH_LONG).show()
             }
@@ -90,6 +98,29 @@ class ServiceConfigFragment : Fragment() {
                 Snackbar.make(binding.root, "Saved", Snackbar.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 Snackbar.make(binding.root, e.message ?: "Couldn't save pricing", Snackbar.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun saveAddOns() {
+        val foldingPrice = binding.foldingPriceSettingInput.text.toString().toDoubleOrNull()
+        val foldingMinutes = binding.foldingMinutesSettingInput.text.toString().toIntOrNull()
+        val priorityFee = binding.priorityFeeInput.text.toString().toDoubleOrNull()
+        if (foldingPrice == null || foldingPrice < 0 || priorityFee == null || priorityFee < 0) {
+            Snackbar.make(binding.root, "Enter valid prices", Snackbar.LENGTH_SHORT).show()
+            return
+        }
+        if (foldingMinutes == null || foldingMinutes <= 0) {
+            Snackbar.make(binding.root, "Enter the folding time in minutes", Snackbar.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                pricingRepository.saveAddOns(AddOnConfig(foldingPrice, foldingMinutes, priorityFee))
+                Snackbar.make(binding.root, "Saved", Snackbar.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Snackbar.make(binding.root, e.message ?: "Couldn't save add-ons", Snackbar.LENGTH_LONG).show()
             }
         }
     }
