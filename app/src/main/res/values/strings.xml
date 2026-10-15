@@ -41,6 +41,10 @@
 
     <string name="action_move_up">Up</string>
     <string name="action_move_down">Down</string>
+    <string name="action_toggle_priority">Toggle priority</string>
+    <string name="label_priority">PRIORITY</string>
+    <string name="message_priority_set">Marked as a priority order</string>
+    <string name="message_priority_cleared">Priority removed</string>
 
     <string name="hint_machine_label">New machine label</string>
     <string name="action_add_machine">Add</string>
@@ -55,6 +59,12 @@
     <string name="hint_wash_minutes_per_kg">Wash minutes per kg</string>
     <string name="hint_dry_minutes_per_kg">Dry minutes per kg</string>
     <string name="action_save">Save</string>
+    <string name="title_service_folding">Folding (add-on)</string>
+    <string name="hint_fold_minutes_per_kg">Fold minutes per kg</string>
+    <string name="format_add_folding">Add folding (+₱%.2f/kg)</string>
+    <string name="label_with_folding">with folding</string>
+    <string name="message_folding_saved">Folding rates saved. Customers can now add folding.</string>
+    <string name="notification_stage_folding">Your laundry is now being folded.</string>
 
     <string name="title_reports">Reports</string>
     <string name="label_total_orders">Total orders</string>

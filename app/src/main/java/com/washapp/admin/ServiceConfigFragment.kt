@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
+import com.washapp.R
+import com.washapp.data.model.FoldingConfig
 import com.washapp.data.model.PricingConfig
 import com.washapp.data.model.ServiceType
 import com.washapp.data.repository.PricingRepository
@@ -49,7 +51,26 @@ class ServiceConfigFragment : Fragment() {
             )
         }
 
+        binding.saveFoldingButton.setOnClickListener { saveFolding() }
+
         loadPricing()
+    }
+
+    private fun saveFolding() {
+        val price = binding.foldingPriceInput.text.toString().toDoubleOrNull()
+        val minutes = binding.foldingMinutesInput.text.toString().toIntOrNull()
+        if (price == null || minutes == null) {
+            Snackbar.make(binding.root, "Enter valid numbers for price and fold minutes", Snackbar.LENGTH_SHORT).show()
+            return
+        }
+        lifecycleScope.launch {
+            try {
+                pricingRepository.saveFolding(FoldingConfig(pricePerKg = price, foldMinutesPerKg = minutes))
+                Snackbar.make(binding.root, R.string.message_folding_saved, Snackbar.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Snackbar.make(binding.root, e.message ?: "Couldn't save folding", Snackbar.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun loadPricing() {
@@ -64,6 +85,11 @@ class ServiceConfigFragment : Fragment() {
                 binding.coloredPriceInput.setText(colored.pricePerKg.toString())
                 binding.coloredWashInput.setText(colored.washMinutesPerKg.toString())
                 binding.coloredDryInput.setText(colored.dryMinutesPerKg.toString())
+
+                pricingRepository.getFolding()?.let {
+                    binding.foldingPriceInput.setText(it.pricePerKg.toString())
+                    binding.foldingMinutesInput.setText(it.foldMinutesPerKg.toString())
+                }
             } catch (e: Exception) {
                 Snackbar.make(binding.root, e.message ?: "Couldn't load pricing", Snackbar.LENGTH_LONG).show()
             }

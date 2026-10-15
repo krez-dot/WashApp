@@ -72,12 +72,13 @@ class OrderManagementFragment : Fragment() {
     }
 
     private fun advanceStage(order: Order) {
-        val next = order.stage.next() ?: return
+        val next = order.stage.next(order.folding) ?: return
 
         lifecycleScope.launch {
             try {
                 when (next) {
                     ServiceStage.WASHING -> startWashing(order, next)
+                    ServiceStage.FOLDING -> startFolding(order, next)
                     ServiceStage.COMPLETED -> completeOrder(order, next)
                     else -> {
                         orderRepository.updateStage(order.orderId, next.name, order.queuePosition)
@@ -104,6 +105,16 @@ class OrderManagementFragment : Fragment() {
         machineLabels[machine.machineId] = machine.label
         adapter.setMachineLabels(machineLabels)
         replaceOrder(order.copy(stage = next, assignedMachineId = machine.machineId))
+    }
+
+    private suspend fun startFolding(order: Order, next: ServiceStage) {
+        // Folding is done by hand, so the machine is free as soon as drying ends. Clearing the
+        // id matters: completeOrder would otherwise release a machine another order now holds.
+        if (order.assignedMachineId.isNotEmpty()) {
+            machineRepository.releaseMachine(order.assignedMachineId)
+        }
+        orderRepository.updateStage(order.orderId, next.name, order.queuePosition, assignedMachineId = "")
+        replaceOrder(order.copy(stage = next, assignedMachineId = ""))
     }
 
     private suspend fun completeOrder(order: Order, next: ServiceStage) {

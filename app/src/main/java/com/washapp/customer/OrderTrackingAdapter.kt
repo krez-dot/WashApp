@@ -9,7 +9,7 @@ import com.washapp.data.model.ServiceStage
 import com.washapp.data.model.ServiceType
 import com.washapp.databinding.ItemOrderTrackingBinding
 import com.washapp.util.bindStageChip
-import com.washapp.util.serviceTypeLabel
+import com.washapp.util.orderServiceLabel
 
 class OrderTrackingAdapter(
     private val onCancel: (Order) -> Unit
@@ -58,7 +58,9 @@ class OrderTrackingAdapter(
             binding.orderIdLabel.text = "Order ${order.orderId.take(6)}"
             binding.stageChip.bindStageChip(order.stage)
             binding.orderDetailsLabel.text =
-                "${context.serviceTypeLabel(order.serviceType)} · ${order.loadSizeKg} kg"
+                "${context.orderServiceLabel(order)} · ${order.loadSizeKg} kg"
+            binding.priorityBadge.visibility =
+                if (order.priority) android.view.View.VISIBLE else android.view.View.GONE
             binding.queuePositionLabel.text = "Queue position: ${order.queuePosition}"
             binding.estimatedCompletionLabel.text =
                 "Estimated completion: ${order.estimatedCompletionMinutes} min"

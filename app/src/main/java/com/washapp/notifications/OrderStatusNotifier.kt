@@ -63,6 +63,7 @@ class OrderStatusNotifier(
         val body = when (stage) {
             ServiceStage.WASHING.name -> context.getString(R.string.notification_stage_washing)
             ServiceStage.DRYING.name -> context.getString(R.string.notification_stage_drying)
+            ServiceStage.FOLDING.name -> context.getString(R.string.notification_stage_folding)
             ServiceStage.COMPLETED.name -> context.getString(R.string.notification_stage_completed)
             else -> context.getString(R.string.notification_stage_queued)
         }

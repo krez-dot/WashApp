@@ -49,27 +49,62 @@
                 android:textAppearance="@style/TextAppearance.WashApp.Body"
                 tools:text="Non-Colored · 2.4 kg" />
 
+            <TextView
+                android:id="@+id/priorityBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_stage_chip"
+                android:backgroundTint="@color/washapp_priority"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:text="@string/label_priority"
+                android:textColor="@color/washapp_on_primary"
+                android:textSize="11sp"
+                android:fontFamily="@font/poppins_semibold"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
         </LinearLayout>
 
         <ImageButton
-            android:id="@+id/moveUpButton"
+            android:id="@+id/togglePriorityButton"
             android:layout_width="44dp"
             android:layout_height="44dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/action_move_up"
+            android:contentDescription="@string/action_toggle_priority"
             android:padding="10dp"
-            android:src="@drawable/ic_move_up"
-            app:tint="@color/washapp_primary" />
+            android:src="@drawable/ic_priority"
+            app:tint="@color/washapp_priority" />
 
-        <ImageButton
-            android:id="@+id/moveDownButton"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/action_move_down"
-            android:padding="10dp"
-            android:src="@drawable/ic_move_down"
-            app:tint="@color/washapp_primary" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/moveUpButton"
+                android:layout_width="40dp"
+                android:layout_height="34dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/action_move_up"
+                android:padding="6dp"
+                android:src="@drawable/ic_move_up"
+                app:tint="@color/washapp_primary" />
+
+            <ImageButton
+                android:id="@+id/moveDownButton"
+                android:layout_width="40dp"
+                android:layout_height="34dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/action_move_down"
+                android:padding="6dp"
+                android:src="@drawable/ic_move_down"
+                app:tint="@color/washapp_primary" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

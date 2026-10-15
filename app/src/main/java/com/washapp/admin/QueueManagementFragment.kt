@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
+import com.washapp.R
 import com.washapp.data.model.Order
 import com.washapp.data.repository.OrderRepository
 import com.washapp.databinding.FragmentQueueManagementBinding
@@ -35,7 +36,8 @@ class QueueManagementFragment : Fragment() {
 
         adapter = QueueAdapter(
             onMoveUp = { order, aboveOrder -> swapPositions(order, aboveOrder) },
-            onMoveDown = { order, belowOrder -> swapPositions(order, belowOrder) }
+            onMoveDown = { order, belowOrder -> swapPositions(order, belowOrder) },
+            onTogglePriority = { order -> togglePriority(order) }
         )
         binding.queueList.layoutManager = LinearLayoutManager(requireContext())
         binding.queueList.adapter = adapter
@@ -59,6 +61,22 @@ class QueueManagementFragment : Fragment() {
                 )
             } catch (e: Exception) {
                 Snackbar.make(binding.root, e.message ?: "Couldn't reorder the queue", Snackbar.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun togglePriority(order: Order) {
+        val newPriority = !order.priority
+        lifecycleScope.launch {
+            try {
+                // setPriority renumbers every position, so take the reordered queue it
+                // returns rather than re-querying and risking a stale read.
+                adapter.submitList(orderRepository.setPriority(order.orderId, newPriority))
+                val message =
+                    if (newPriority) R.string.message_priority_set else R.string.message_priority_cleared
+                Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Snackbar.make(binding.root, e.message ?: "Couldn't update priority", Snackbar.LENGTH_LONG).show()
             }
         }
     }

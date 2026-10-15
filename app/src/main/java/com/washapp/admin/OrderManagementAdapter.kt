@@ -8,7 +8,7 @@ import com.washapp.data.model.Order
 import com.washapp.data.model.ServiceStage
 import com.washapp.databinding.ItemOrderManagementBinding
 import com.washapp.util.bindStageChip
-import com.washapp.util.serviceTypeLabel
+import com.washapp.util.orderServiceLabel
 
 class OrderManagementAdapter(
     private val onAdvanceStage: (Order) -> Unit
@@ -66,8 +66,9 @@ class OrderManagementAdapter(
             val context = binding.root.context
             binding.orderSummary.text = "Order ${order.orderId.take(6)}"
             binding.stageChip.bindStageChip(order.stage)
-            binding.orderDetailsLabel.text = "Queue #${order.queuePosition} · " +
-                "${context.serviceTypeLabel(order.serviceType)} · ${order.loadSizeKg} kg"
+            val priorityPrefix = if (order.priority) "PRIORITY · " else ""
+            binding.orderDetailsLabel.text = priorityPrefix + "Queue #${order.queuePosition} · " +
+                "${context.orderServiceLabel(order)} · ${order.loadSizeKg} kg"
 
             if (order.assignedMachineId.isNotEmpty()) {
                 binding.machineLabel.visibility = View.VISIBLE
@@ -79,7 +80,7 @@ class OrderManagementAdapter(
 
             binding.customerLabel.text = customerLabels[order.customerId] ?: order.customerId.take(8)
 
-            val next = order.stage.next()
+            val next = order.stage.next(order.folding)
             if (next == null) {
                 binding.advanceStageButton.visibility = View.GONE
             } else {
@@ -87,6 +88,7 @@ class OrderManagementAdapter(
                 binding.advanceStageButton.text = when (next) {
                     ServiceStage.WASHING -> "Start Washing"
                     ServiceStage.DRYING -> "Start Drying"
+                    ServiceStage.FOLDING -> "Start Folding"
                     ServiceStage.COMPLETED -> "Complete"
                     ServiceStage.QUEUED -> next.name
                 }

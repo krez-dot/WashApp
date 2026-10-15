@@ -1,15 +1,17 @@
 package com.washapp.admin
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.washapp.data.model.Order
 import com.washapp.databinding.ItemQueueOrderBinding
-import com.washapp.util.serviceTypeLabel
+import com.washapp.util.orderServiceLabel
 
 class QueueAdapter(
     private val onMoveUp: (Order, Order) -> Unit,
-    private val onMoveDown: (Order, Order) -> Unit
+    private val onMoveDown: (Order, Order) -> Unit,
+    private val onTogglePriority: (Order) -> Unit
 ) : RecyclerView.Adapter<QueueAdapter.QueueViewHolder>() {
 
     private val orders = mutableListOf<Order>()
@@ -50,7 +52,11 @@ class QueueAdapter(
             binding.queuePositionBadge.text = order.queuePosition.toString()
             binding.queueOrderSummary.text = "Order ${order.orderId.take(6)}"
             binding.queueOrderDetails.text =
-                "${context.serviceTypeLabel(order.serviceType)} · ${order.loadSizeKg} kg"
+                "${context.orderServiceLabel(order)} · ${order.loadSizeKg} kg"
+
+            binding.priorityBadge.visibility = if (order.priority) View.VISIBLE else View.GONE
+            binding.togglePriorityButton.alpha = if (order.priority) 1f else 0.3f
+            binding.togglePriorityButton.setOnClickListener { onTogglePriority(order) }
 
             // ImageButton keeps its tint when disabled, so dim it to show it's unavailable.
             binding.moveUpButton.isEnabled = position > 0

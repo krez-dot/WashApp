@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.washapp.R
+import com.washapp.data.model.FoldingConfig
 import com.washapp.data.model.Order
 import com.washapp.data.model.ServiceType
 import com.washapp.data.repository.AuthRepository
@@ -29,6 +30,7 @@ class OrderSubmissionFragment : Fragment() {
     private val authRepository = AuthRepository()
     private val orderRepository = OrderRepository()
     private val pricingRepository = PricingRepository()
+    private var foldingConfig: FoldingConfig? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,7 +51,29 @@ class OrderSubmissionFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) = updatePricePreview()
         })
         binding.coloredCheckbox.setOnCheckedChangeListener { _, _ -> updatePricePreview() }
+        binding.foldingCheckbox.setOnCheckedChangeListener { _, _ -> updatePricePreview() }
+        loadFoldingOption()
     }
+
+    private fun loadFoldingOption() {
+        lifecycleScope.launch {
+            try {
+                val config = pricingRepository.getFolding() ?: return@launch
+                if (_binding == null) return@launch
+                foldingConfig = config
+                binding.foldingCheckbox.text = getString(R.string.format_add_folding, config.pricePerKg)
+                binding.foldingCheckbox.visibility = View.VISIBLE
+            } catch (e: Exception) {
+                // Folding stays hidden; ordering without it still works.
+            }
+        }
+    }
+
+    private fun foldingSelected(): Boolean =
+        foldingConfig != null && binding.foldingCheckbox.isChecked
+
+    private fun foldingCostPerKg(): Double =
+        if (foldingSelected()) foldingConfig?.pricePerKg ?: 0.0 else 0.0
 
     private fun updatePricePreview() {
         val loadSize = binding.loadSizeInput.text.toString().toDoubleOrNull()
@@ -62,7 +86,10 @@ class OrderSubmissionFragment : Fragment() {
             try {
                 val pricing = pricingRepository.getPricing(serviceType)
                 binding.pricePreviewLabel.text =
-                    getString(R.string.format_estimated_cost, pricing.pricePerKg * loadSize)
+                    getString(
+                        R.string.format_estimated_cost,
+                        (pricing.pricePerKg + foldingCostPerKg()) * loadSize
+                    )
                 binding.pricePreviewLabel.visibility = View.VISIBLE
             } catch (e: Exception) {
                 binding.pricePreviewLabel.visibility = View.GONE
@@ -92,13 +119,17 @@ class OrderSubmissionFragment : Fragment() {
                     customerId = customerId,
                     serviceType = serviceType,
                     loadSizeKg = loadSize,
-                    cost = pricing.pricePerKg * loadSize,
-                    queuePosition = queuePosition
+                    cost = (pricing.pricePerKg + foldingCostPerKg()) * loadSize,
+                    queuePosition = queuePosition,
+                    folding = foldingSelected()
                 )
-                order = TimeEstimator.estimate(order, pricing, queuePosition, averageStageMinutes = 15)
+                order = TimeEstimator.estimate(
+                    order, pricing, queuePosition, averageStageMinutes = 15, folding = foldingConfig
+                )
                 orderRepository.submitOrder(order)
                 binding.loadSizeInput.text?.clear()
                 binding.coloredCheckbox.isChecked = false
+                binding.foldingCheckbox.isChecked = false
                 binding.pricePreviewLabel.visibility = View.GONE
                 (activity as? CustomerActivity)?.refreshStatusNotifier()
                 showConfirmation(order)

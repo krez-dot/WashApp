@@ -7,6 +7,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Source
 import com.washapp.data.model.Order
+import com.washapp.data.scheduling.QueueOptimizer
 import kotlinx.coroutines.tasks.await
 
 class OrderRepository(
@@ -66,6 +67,26 @@ class OrderRepository(
         orders.document(otherOrderId).update("queuePosition", position).await()
         pushStatus(orderId, stage, otherPosition)
         pushStatus(otherOrderId, otherStage, position)
+    }
+
+    /**
+     * Flips an order's rush flag and renumbers the whole active queue so positions stay
+     * dense and priority-first. Returns the reordered queue.
+     */
+    suspend fun setPriority(orderId: String, priority: Boolean): List<Order> {
+        orders.document(orderId).update("priority", priority).await()
+
+        val updated = getActiveQueue().map {
+            if (it.orderId == orderId) it.copy(priority = priority) else it
+        }
+        val renumbered = QueueOptimizer.renumber(updated)
+
+        val batch = firestore.batch()
+        renumbered.forEach { batch.update(orders.document(it.orderId), "queuePosition", it.queuePosition) }
+        batch.commit().await()
+
+        renumbered.forEach { pushStatus(it.orderId, it.stage.name, it.queuePosition) }
+        return renumbered
     }
 
     suspend fun cancelOrder(orderId: String) {
