@@ -29,20 +29,28 @@ class OrderRepository(
     suspend fun getOrder(orderId: String): Order? =
         orders.document(orderId).get(Source.SERVER).await().toObject(Order::class.java)
 
-    /** Moves to FOLDING, frees the machine, and adds the owner's folding price to the order total. */
-    suspend fun startFolding(order: Order, foldingPrice: Double): Order {
+    /**
+     * Moves to FOLDING, frees the machine, and records the owner's folding price and time:
+     * the price joins the order total and the time replaces the default fold estimate.
+     */
+    suspend fun startFolding(order: Order, foldingPrice: Double, foldMinutes: Int): Order {
         val updated = order.copy(
             stage = ServiceStage.FOLDING,
             assignedMachineId = "",
             foldingPrice = foldingPrice,
-            cost = order.cost - order.foldingPrice + foldingPrice
+            cost = order.cost - order.foldingPrice + foldingPrice,
+            estimatedFoldMinutes = foldMinutes,
+            estimatedCompletionMinutes =
+                order.estimatedCompletionMinutes - order.estimatedFoldMinutes + foldMinutes
         )
         orders.document(order.orderId).update(
             mapOf(
                 "stage" to updated.stage.name,
                 "assignedMachineId" to "",
                 "foldingPrice" to updated.foldingPrice,
-                "cost" to updated.cost
+                "cost" to updated.cost,
+                "estimatedFoldMinutes" to updated.estimatedFoldMinutes,
+                "estimatedCompletionMinutes" to updated.estimatedCompletionMinutes
             )
         ).await()
         pushStatus(order.orderId, updated.stage.name, order.queuePosition)

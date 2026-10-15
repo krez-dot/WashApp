@@ -34,10 +34,10 @@ class ServiceConfigFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.saveNonColoredButton.setOnClickListener {
-            save(ServiceType.NON_COLORED, binding.nonColoredPriceInput)
+            save(ServiceType.NON_COLORED, binding.nonColoredPriceInput, binding.nonColoredWashInput, binding.nonColoredDryInput)
         }
         binding.saveColoredButton.setOnClickListener {
-            save(ServiceType.COLORED, binding.coloredPriceInput)
+            save(ServiceType.COLORED, binding.coloredPriceInput, binding.coloredWashInput, binding.coloredDryInput)
         }
 
         loadPricing()
@@ -48,25 +48,45 @@ class ServiceConfigFragment : Fragment() {
             try {
                 val nonColored = pricingRepository.getPricing(ServiceType.NON_COLORED)
                 binding.nonColoredPriceInput.setText(nonColored.pricePerKg.toString())
+                binding.nonColoredWashInput.setText(nonColored.washMinutes.toString())
+                binding.nonColoredDryInput.setText(nonColored.dryMinutes.toString())
 
                 val colored = pricingRepository.getPricing(ServiceType.COLORED)
                 binding.coloredPriceInput.setText(colored.pricePerKg.toString())
+                binding.coloredWashInput.setText(colored.washMinutes.toString())
+                binding.coloredDryInput.setText(colored.dryMinutes.toString())
             } catch (e: Exception) {
                 Snackbar.make(binding.root, e.message ?: "Couldn't load pricing", Snackbar.LENGTH_LONG).show()
             }
         }
     }
 
-    private fun save(serviceType: ServiceType, priceInput: EditText) {
+    private fun save(
+        serviceType: ServiceType,
+        priceInput: EditText,
+        washInput: EditText,
+        dryInput: EditText
+    ) {
         val price = priceInput.text.toString().toDoubleOrNull()
         if (price == null || price < 0) {
             Snackbar.make(binding.root, "Enter a valid price", Snackbar.LENGTH_SHORT).show()
             return
         }
+        val washMinutes = washInput.text.toString().toIntOrNull()
+        val dryMinutes = dryInput.text.toString().toIntOrNull()
+        if (washMinutes == null || washMinutes <= 0 || dryMinutes == null || dryMinutes <= 0) {
+            Snackbar.make(binding.root, "Enter wash and dry times in minutes", Snackbar.LENGTH_SHORT).show()
+            return
+        }
 
         lifecycleScope.launch {
             try {
-                pricingRepository.savePricing(PricingConfig(serviceType = serviceType, pricePerKg = price))
+                pricingRepository.savePricing(PricingConfig(
+                        serviceType = serviceType,
+                        pricePerKg = price,
+                        washMinutes = washMinutes,
+                        dryMinutes = dryMinutes
+                    ))
                 Snackbar.make(binding.root, "Saved", Snackbar.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 Snackbar.make(binding.root, e.message ?: "Couldn't save pricing", Snackbar.LENGTH_LONG).show()

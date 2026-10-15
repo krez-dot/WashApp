@@ -101,7 +101,10 @@ class OrderSubmissionFragment : Fragment() {
                     queuePosition = queuePosition,
                     folding = binding.foldingCheckbox.isChecked
                 )
-                order = TimeEstimator.estimate(order, queuePosition, averageStageMinutes = 15)
+                order = TimeEstimator.estimate(
+                    order, queuePosition, averageStageMinutes = 15,
+                    washMinutes = pricing.washMinutes, dryMinutes = pricing.dryMinutes
+                )
                 orderRepository.submitOrder(order)
                 binding.loadSizeInput.text?.clear()
                 binding.coloredCheckbox.isChecked = false

@@ -1,21 +1,22 @@
 package com.washapp.data.scheduling
 
 import com.washapp.data.model.Order
-import kotlin.math.roundToInt
 
 /**
- * Stage durations are fixed rather than owner-configurable, so every estimate uses the same
- * per-kg rates. Adjust these constants to recalibrate the estimates.
+ * Wash and dry minutes are flat per load and set by the owner per service type. Folding uses a
+ * fixed flat time since the owner prices it per order.
  */
 object TimeEstimator {
-    const val WASH_MINUTES_PER_KG = 5
-    const val DRY_MINUTES_PER_KG = 8
-    const val FOLD_MINUTES_PER_KG = 3
+    const val FOLD_MINUTES = 10
 
-    fun estimate(order: Order, queuePosition: Int, averageStageMinutes: Int): Order {
-        val washMinutes = (order.loadSizeKg * WASH_MINUTES_PER_KG).roundToInt()
-        val dryMinutes = (order.loadSizeKg * DRY_MINUTES_PER_KG).roundToInt()
-        val foldMinutes = if (order.folding) (order.loadSizeKg * FOLD_MINUTES_PER_KG).roundToInt() else 0
+    fun estimate(
+        order: Order,
+        queuePosition: Int,
+        averageStageMinutes: Int,
+        washMinutes: Int,
+        dryMinutes: Int
+    ): Order {
+        val foldMinutes = if (order.folding) FOLD_MINUTES else 0
         val waitMinutes = queuePosition * averageStageMinutes
         return order.copy(
             estimatedWashMinutes = washMinutes,

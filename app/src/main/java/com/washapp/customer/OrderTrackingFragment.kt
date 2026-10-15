@@ -126,7 +126,10 @@ class OrderTrackingFragment : Fragment() {
                     val refreshed = orderRepository.getOrder(orderId) ?: return@launch
                     if (_binding == null || !liveOrders.containsKey(orderId)) return@launch
                     val merged = liveOrders.getValue(orderId).copy(
-                        cost = refreshed.cost, foldingPrice = refreshed.foldingPrice
+                        cost = refreshed.cost,
+                        foldingPrice = refreshed.foldingPrice,
+                        estimatedFoldMinutes = refreshed.estimatedFoldMinutes,
+                        estimatedCompletionMinutes = refreshed.estimatedCompletionMinutes
                     )
                     liveOrders[orderId] = merged
                     adapter.updateItem(merged)

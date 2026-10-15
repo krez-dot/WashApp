@@ -114,7 +114,7 @@ class OrderManagementFragment : Fragment() {
         replaceOrder(order.copy(stage = next, assignedMachineId = machine.machineId))
     }
 
-    /** The owner decides the fold price per order, so it is asked for when folding begins. */
+    /** The owner decides the fold time and price per order, so both are asked for when folding begins. */
     private fun askFoldingPrice(order: Order) {
         val dialogBinding = DialogFoldingPriceBinding.inflate(LayoutInflater.from(requireContext()))
         val dialog = MaterialAlertDialogBuilder(requireContext())
@@ -127,11 +127,17 @@ class OrderManagementFragment : Fragment() {
 
         // Set after show() so an invalid price keeps the dialog open.
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            dialogBinding.foldingPriceLayout.error = null
+            dialogBinding.foldingMinutesLayout.error = null
             val price = dialogBinding.foldingPriceInput.text.toString().toDoubleOrNull()
+            val minutes = dialogBinding.foldingMinutesInput.text.toString().toIntOrNull()
             if (price == null || price < 0) {
                 dialogBinding.foldingPriceLayout.error = getString(R.string.message_enter_folding_price)
-                return@setOnClickListener
             }
+            if (minutes == null || minutes <= 0) {
+                dialogBinding.foldingMinutesLayout.error = getString(R.string.message_enter_folding_minutes)
+            }
+            if (price == null || price < 0 || minutes == null || minutes <= 0) return@setOnClickListener
             dialog.dismiss()
             lifecycleScope.launch {
                 try {
@@ -141,7 +147,7 @@ class OrderManagementFragment : Fragment() {
                     if (order.assignedMachineId.isNotEmpty()) {
                         machineRepository.releaseMachine(order.assignedMachineId)
                     }
-                    replaceOrder(orderRepository.startFolding(order, price))
+                    replaceOrder(orderRepository.startFolding(order, price, minutes))
                 } catch (e: Exception) {
                     Snackbar.make(binding.root, e.message ?: "Couldn't start folding", Snackbar.LENGTH_LONG).show()
                 }
