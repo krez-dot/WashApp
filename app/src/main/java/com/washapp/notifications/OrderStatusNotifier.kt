@@ -28,9 +28,11 @@ class OrderStatusNotifier(
 ) {
     private val listeners = mutableMapOf<String, ValueEventListener>()
     private val lastStage = mutableMapOf<String, String>()
+    private var customerName = ""
 
-    suspend fun start(customerId: String) {
+    suspend fun start(customerId: String, name: String) {
         stop()
+        customerName = name
         val active = orderRepository.getOrdersForCustomer(customerId)
             .filter { it.stage != ServiceStage.COMPLETED }
         active.forEach { order ->
@@ -79,7 +81,11 @@ class OrderStatusNotifier(
 
         val notification = NotificationCompat.Builder(context, WashApp.ORDER_STATUS_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(context.getString(R.string.notification_title, orderId.take(6)))
+            .setContentTitle(if (customerName.isBlank()) {
+                context.getString(R.string.notification_title, orderId.take(6))
+            } else {
+                context.getString(R.string.notification_title_named, orderId.take(6), customerName)
+            })
             .setContentText(body)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)

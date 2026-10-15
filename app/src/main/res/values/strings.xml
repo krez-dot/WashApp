@@ -85,6 +85,7 @@
     <string name="channel_order_status_name">Order status</string>
     <string name="channel_order_status_description">Alerts when your laundry moves to the next stage</string>
     <string name="notification_title">Order %1$s</string>
+    <string name="notification_title_named">Order %1$s · %2$s</string>
     <string name="notification_stage_queued">Your order is queued.</string>
     <string name="notification_stage_washing">Your laundry is now being washed.</string>
     <string name="notification_stage_drying">Your laundry is now being dried.</string>

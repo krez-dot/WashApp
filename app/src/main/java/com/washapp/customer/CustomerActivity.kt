@@ -67,7 +67,7 @@ class CustomerActivity : AppCompatActivity() {
         val customerId = authRepository.currentUserId() ?: return
         lifecycleScope.launch {
             try {
-                statusNotifier.start(customerId)
+                statusNotifier.start(customerId, authRepository.getCurrentUser()?.name.orEmpty())
             } catch (e: Exception) {
                 // Non-critical: the tracking screen still shows live status without alerts.
             }
